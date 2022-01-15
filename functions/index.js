@@ -21,10 +21,6 @@
  
      const isBunny = objects.filter( object => object.name === 'Rabbit'); 
  
-     if (isBunny.length) {
-         console.log(`It's a bunny!`);
-     }
- 
-     res.status(200).send(`${isBunny.length > 0}, ${req.body.imgURI}`);
+     res.status(200).send(isBunny.length > 0);
  };
  
