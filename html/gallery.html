@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>WPI Squirrel and Bunny Spotter</title>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.11&sensor=false&key=AIzaSyDlWdrHUa89OCxOGi-RpfKjTpvA7eeAaAY" type="text/javascript"></script>
+		<script src="bundle.js"></script>
+		<script type="text/javascript">
+		function setupNav() {
+			document.getElementById("siteTitle").onclick = function () {
+				location.href = "index.html";
+			};
+		}
+		
+		function load() {
+			setupNav();
+		}
+        </script>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="./main.css">
+    </head>
+    <body onload="load();">
+		<ul id="nav">
+			<li id="siteTitle"><image src="squnny.png" width="40px" style="padding: 10px;"></image>WPI Squirrel and Bunny Spotter</li>
+			<li><a href="index.html">Home</a></li>
+			<li><a href="leaderboard.html">Leaderboard</a></li>
+			<li><a class="active" href="gallery.html">Gallery</a></li>
+			</ul>
+		<div id="container">
+			<h1 style="font-size: 40px;">Gallery</h1>
+		</div>
+    </body>
+</html>
