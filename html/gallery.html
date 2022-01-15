@@ -8,29 +8,94 @@
 		<script src="bundle.js"></script>
 		<script type="text/javascript">
 		function generateGallery() {
+			var modal = document.getElementById("myModal");
 			var pictures = [{latitude:42.274988888888885, longitude:-71.80835555555555, bunny: true, squirrel: false, user: "Margaret", datetime: 1642219340, image: "./bunny1.jpg"},
 					{latitude:42.27195505350241, longitude:-71.80839022451308, bunny: false, squirrel: true, user: "Avery", datetime: 1641892835, image: "./bunny2.jpg"},
 					{latitude:42.276337181680475, longitude:-71.81259592818087, bunny: true, squirrel: true, user: "Char", datetime: 1608919235, image: "./bunny3.jpg"}];
 			var container = document.getElementById("gallery_container");
+			var modalImage = document.getElementById("modalImage");
 			for(var i=0; i<pictures.length; i++) {
 				var galleryImage = document.createElement("img");
 				galleryImage.classList.add("gallery");
 				galleryImage.src = pictures[i].image;
 				for(var j=0; j<5; j++) {
-					container.appendChild(galleryImage.cloneNode());
+					galleryImage.onclick = (function(i, image) { return function() {
+						modal.style.display = "block";
+						plotAnimal(i);
+						modalImage.src = image;
+						document.getElementById('mapCanvas').style.height = modalImage.getBoundingClientRect().height + "px";
+					}})(i, pictures[i].image);
+					container.appendChild(galleryImage);
 				}
 			}
 		}
 
+		function setupImagePopup() {
+			var modal = document.getElementById("myModal");
+			var span = document.getElementsByClassName("close")[0];
+			span.onclick = function() {
+				modal.style.display = "none";
+			}
+			window.onclick = function(event) {
+				if (event.target == modal) {
+					modal.style.display = "none";
+				}
+			}
+		}
+
+		function plotAnimal(index) {
+			var locations = [{latitude:42.274988888888885, longitude:-71.80835555555555, bunny: true, squirrel: false, user: "Margaret", datetime: 1642219340, image: "bunny1.jpg"},
+					{latitude:42.27195505350241, longitude:-71.80839022451308, bunny: false, squirrel: true, user: "Avery", datetime: 1641892835, image: "bunny2.jpg"},
+					{latitude:42.276337181680475, longitude:-71.81259592818087, bunny: true, squirrel: true, user: "Char", datetime: 1608919235, image: "bunny3.jpg"}];
+			var loc = JSON.parse(JSON.stringify(locations[index]));
+
+			var myStyles = [{
+				featureType: "poi",
+				elementType: "labels",
+				stylers: [{ visibility: "off" }]
+			}];
+			var options = {
+				zoom: 17,
+				center: new google.maps.LatLng(loc.latitude, loc.longitude),
+				mapTypeId: google.maps.MapTypeId.TERRAIN,
+				mapTypeControl: false,
+				styles: myStyles 
+			};
+
+			var map = new google.maps.Map(document.getElementById('mapCanvas'), options);
+
+			var date = new Date(loc.datetime * 1000);
+			var dateString =  (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+			var hours = date.getHours();
+			var minutes = "0" + date.getMinutes();
+			var time = (hours % 12) + ':' + minutes.substr(-2) + (hours >= 12? " pm" : " am");
+			var animalString = (loc.bunny? "Bunny" : "") + (loc.bunny && loc.squirrel? " and " : "") + (loc.squirrel? "Squirrel" : "");
+			
+			const icons = {
+				bunny: { url: "bunny.png", scaledSize: new google.maps.Size(30, 30) },
+				squirrel: { url: "squirrel.png", scaledSize: new google.maps.Size(30, 30) },
+				squnny: { url: "squnny.png", scaledSize: new google.maps.Size(33, 33) },
+				};
+		
+			var marker = new google.maps.Marker({
+				position: new google.maps.LatLng(loc.latitude, loc.longitude),
+				map: map,
+				icon: icons[loc.bunny? (loc.squirrel? "squnny" : "bunny") : "squirrel"]
+			});
+			var modelText = document.getElementById("modelText");
+			(function(loc, animalString, time, dateString) {
+				modelText.innerText = loc.user + " spotted a " + animalString.toLowerCase() + " at " + time + " on " + dateString;
+			})(loc, animalString, time, dateString);
+        }
+
 		function setupNav() {
 			document.getElementById("siteTitle").onclick = function () {
-				location.href = "index.html";
+				location.href = "home.html";
 			};
 		}
 		
 		function load() {
 			setupNav();
-			generateGallery();
 		}
         </script>
 		<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,13 +107,26 @@
     <body onload="load();">
 		<ul id="nav">
 			<li id="siteTitle"><image src="squnny.png" width="40px" style="padding: 10px;"></image>WPI Squirrel and Bunny Spotter</li>
-			<li><a href="index.html">Home</a></li>
+			<li><a href="home.html">Home</a></li>
 			<li><a href="leaderboard.html">Leaderboard</a></li>
 			<li><a class="active" href="gallery.html">Gallery</a></li>
 			</ul>
 		<div id="container">
 			<h1 style="font-size: 40px;">Gallery</h1>
 			<br>	  
+			<div id="myModal" class="modal">
+			<div class="modal-content">
+				<span class="close">&times;</span>
+				<div class="modal-body">
+					<p id="modelText" style="font-size: 25px;"></p>
+					<div>
+						<div id="mapCanvas" style="width: 230px;height:450px"></div>
+						<img id="modalImage"></img>
+					</div>
+				</div>
+			</div>
+
+			</div>
 			<div id="gallery_container"></div>
 		</div>
     </body>
