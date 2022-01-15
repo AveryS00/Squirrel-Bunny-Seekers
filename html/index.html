@@ -1,5 +1,25 @@
-<html>
-# Welcome to WPI Squirrel and Bunny Seekers
+<html lang="en-US">
+Welcome to WPI Squirrel and Bunny Seekers
+<head>
+    <title>Squirrel and Bunny Seekers</title>
+    <script type="text/javascript" src="js/api.js"></script>
+    <script type='text/javascript' src='js/uploadImage.js'></script>
+</head>
+
+
+    <div id="uploadImage">
+        <h3>Upload Image</h3>
+        <form id="uploadImageForm" name="uploadImageForm" method="post">
+            <input type="file" accept="image/*" id="image" name="image">
+            <input id="base64Encoding" name="base64EncodedValue" hidden=true value="">
+            <input type="button" id="uploadButton" name="uploadButton" value="Upload Image"
+                   disabled onClick="handleUploadImage()">
+        </form>
+
+        <script>
+            document.getElementById('image').addEventListener('change', handleFileSelect, false);
+        </script>
+    </div>
 </html>
 
 
