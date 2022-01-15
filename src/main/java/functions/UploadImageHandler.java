@@ -10,12 +10,15 @@ import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.http.HttpClient;
 import java.security.NoSuchAlgorithmException;
-import java.util.UUID;
 import java.security.MessageDigest;
+import java.util.UUID;
 
 import database.ImageDAO;
 import entity.SeekerImage;
+
 
 public class UploadImageHandler implements HttpFunction {
     // TODO might want to move these to a "higher" place
@@ -26,12 +29,14 @@ public class UploadImageHandler implements HttpFunction {
     private Storage storage;
 
     @Override
-    public void service(HttpRequest request, HttpResponse response) throws IOException {
+    public void service(HttpRequest request, HttpResponse response) throws IOException, InterruptedException{
         // TODO implement logging
         SeekerImage sImage;
         JsonObject body;
         String url;
         String data;
+        boolean isBunny;
+        boolean isSquirrel;
         String contentType = request.getContentType().orElse("");
         // Can likely be taken to a higher level. IE, once initialized, can be used everywhere.
         storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
@@ -76,21 +81,59 @@ public class UploadImageHandler implements HttpFunction {
         url = uploadToBucket(sImage, data.getBytes());
         sImage.setUrl(url);
 
-        // TODO Verify it contains a bunny or squirrel
-
-        // TODO remove from bucket if not a bunny or squirrel
-        if (false)
-            if (deleteFromBucket(sImage))
-                System.out.println("Deleted image");
-
-        // TODO if bunny or squirrel, add to database
-        if (uploadToDatabase(sImage))
-            System.out.println("Success");
+        // Verify it contains a bunny or squirrel
+        isBunny = verifyBunny(url);
+        isSquirrel = verifySquirrel(url);
+    
+        // Remove from bucket if not a bunny or squirrel
+        if (!isBunny && !isSquirrel)
+            deleteFromBucket(sImage);
+        else
+            // If bunny or squirrel, add to database
+            if (uploadToDatabase(sImage))
+                System.out.println("Success");
     }
 
-    private boolean verifyImageContents() {
-        // TODO Char add algorithm
-        return false;
+    private boolean verifyBunny(String url) throws IOException, InterruptedException {
+        boolean isBunny = false;
+
+        String bunnyIdentifierEndpoint = "https://us-east4-still-tensor-338300.cloudfunctions.net/bunnyIdentifier";
+        String postBody = "{ \"imgURI\":\"" + url + "\" }";
+
+        var request = java.net.http.HttpRequest.newBuilder()
+            .uri(URI.create(bunnyIdentifierEndpoint))
+            .header("Content-Type", "application/json")
+            .POST(java.net.http.HttpRequest.BodyPublishers.ofString(postBody))
+            .build();
+
+        var client = HttpClient.newHttpClient();
+ 
+        var response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+
+        isBunny = Boolean.parseBoolean(response.body());
+
+        return isBunny;
+    }
+
+    private boolean verifySquirrel(String url) throws IOException, InterruptedException {
+        boolean isSquirrel = false;
+
+        String squirrelIdentifierEndpoint = "https://us-east4-still-tensor-338300.cloudfunctions.net/squirrelIdentifier";
+        String postBody = "{ \"imgURI\":\"" + url + "\" }";
+
+        var request = java.net.http.HttpRequest.newBuilder()
+            .uri(URI.create(squirrelIdentifierEndpoint))
+            .header("Content-Type", "application/json")
+            .POST(java.net.http.HttpRequest.BodyPublishers.ofString(postBody))
+            .build();
+
+        var client = HttpClient.newHttpClient();
+ 
+        var response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+
+        isSquirrel = Boolean.parseBoolean(response.body());
+
+        return isSquirrel;
     }
 
 
