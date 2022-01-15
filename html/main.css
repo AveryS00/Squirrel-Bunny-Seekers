@@ -143,6 +143,24 @@ li a:hover:not(.active) {
     color: white;
 }
 
+.gallery {
+    margin: 5px;
+    float: left;
+    width: 200px;
+    height: 200px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+#gallery_container {
+    width: 90%;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 @media only screen and (max-width: 600px) {
     #button_text {
         width: 90%;

@@ -7,6 +7,21 @@
         <script src="https://maps.googleapis.com/maps/api/js?v=3.11&sensor=false&key=AIzaSyDlWdrHUa89OCxOGi-RpfKjTpvA7eeAaAY" type="text/javascript"></script>
 		<script src="bundle.js"></script>
 		<script type="text/javascript">
+		function generateGallery() {
+			var pictures = [{latitude:42.274988888888885, longitude:-71.80835555555555, bunny: true, squirrel: false, user: "Margaret", datetime: 1642219340, image: "./bunny1.jpg"},
+					{latitude:42.27195505350241, longitude:-71.80839022451308, bunny: false, squirrel: true, user: "Avery", datetime: 1641892835, image: "./bunny2.jpg"},
+					{latitude:42.276337181680475, longitude:-71.81259592818087, bunny: true, squirrel: true, user: "Char", datetime: 1608919235, image: "./bunny3.jpg"}];
+			var container = document.getElementById("gallery_container");
+			for(var i=0; i<pictures.length; i++) {
+				var galleryImage = document.createElement("img");
+				galleryImage.classList.add("gallery");
+				galleryImage.src = pictures[i].image;
+				for(var j=0; j<5; j++) {
+					container.appendChild(galleryImage.cloneNode());
+				}
+			}
+		}
+
 		function setupNav() {
 			document.getElementById("siteTitle").onclick = function () {
 				location.href = "index.html";
@@ -15,6 +30,7 @@
 		
 		function load() {
 			setupNav();
+			generateGallery();
 		}
         </script>
 		<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,6 +48,8 @@
 			</ul>
 		<div id="container">
 			<h1 style="font-size: 40px;">Gallery</h1>
+			<br>	  
+			<div id="gallery_container"></div>
 		</div>
     </body>
 </html>
