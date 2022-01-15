@@ -7,6 +7,8 @@ import com.google.cloud.storage.*;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.net.URI;
+import java.net.http.HttpClient;
 
 import entity.SeekerImage;
 
@@ -35,6 +37,17 @@ public class UploadImageHandler implements HttpFunction {
         sImage.setUrl(url);
 
         // TODO Verify it contains a bunny or squirrel
+        boolean isBunny = false;
+        boolean isSquirrel = false;
+
+        try {
+            isBunny = verifyBunny(url);
+            isSquirrel = verifyBunny(url);
+        } catch(Exception e){
+            System.out.println("Something went wrong :(");
+            e.printStackTrace();
+        }
+
 
         // TODO remove from bucket if not a bunny or squirrel
         if (false)
@@ -45,9 +58,46 @@ public class UploadImageHandler implements HttpFunction {
             System.out.println("Success");
     }
 
-    private boolean verifyImageContents() {
-        // TODO Char add algorithm
-        return false;
+    private boolean verifyBunny(String url) throws IOException, InterruptedException {
+        boolean isBunny = false;
+
+        String bunnyIdentifierEndpoint = "https://us-east4-still-tensor-338300.cloudfunctions.net/bunnyIdentifier";
+        String postBody = "{ \"imgURI\":\"" + url + "\" }";
+
+        var request = java.net.http.HttpRequest.newBuilder()
+            .uri(URI.create(bunnyIdentifierEndpoint))
+            .header("Content-Type", "application/json")
+            .POST(java.net.http.HttpRequest.BodyPublishers.ofString(postBody))
+            .build();
+
+        var client = HttpClient.newHttpClient();
+ 
+        var response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+
+        isBunny = Boolean.parseBoolean(response.body());
+
+        return isBunny;
+    }
+
+    private boolean verifySquirrel(String url) throws IOException, InterruptedException {
+        boolean isSquirrel = false;
+
+        String squirrelIdentifierEndpoint = "https://us-east4-still-tensor-338300.cloudfunctions.net/squirrelIdentifier";
+        String postBody = "{ \"imgURI\":\"" + url + "\" }";
+
+        var request = java.net.http.HttpRequest.newBuilder()
+            .uri(URI.create(squirrelIdentifierEndpoint))
+            .header("Content-Type", "application/json")
+            .POST(java.net.http.HttpRequest.BodyPublishers.ofString(postBody))
+            .build();
+
+        var client = HttpClient.newHttpClient();
+ 
+        var response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+
+        isSquirrel = Boolean.parseBoolean(response.body());
+
+        return isSquirrel;
     }
 
     /**
