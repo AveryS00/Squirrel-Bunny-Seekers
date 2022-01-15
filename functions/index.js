@@ -11,8 +11,7 @@
      // Creates a client
      const client = new vision.ImageAnnotatorClient();
  
-     const imgURI = "https://storage.googleapis.com/msu4xohkt-sjiuw-z4/smallerbunny.png";
-     console.log(req.query.imgURI);
+     const imgURI = req.body.imgURI;
    
      // Performs label detection on the image file
      const [result] = await client.objectLocalization(imgURI);
@@ -26,5 +25,6 @@
          console.log(`It's a bunny!`);
      }
  
-     res.status(200).send(`${isBunny.length > 0}, ${req.query.imgURI}`);
+     res.status(200).send(`${isBunny.length > 0}, ${req.body.imgURI}`);
  };
+ 
