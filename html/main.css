@@ -50,7 +50,7 @@ body {
 }
 
 #button_text {
-    width: 50%; 
+    width: 60%; 
     display: inline-block;
     font-size: 20px;
     margin-right: 60px;
@@ -112,6 +112,35 @@ li a:hover:not(.active) {
     background-color: var(--upsdell-red);
     display: flex;
     align-items: center;
+}
+
+#leaderboard {
+    width:90%;
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    border-color: var(--camel);
+}
+  
+#leaderboard td, #leaderboard th {
+    border: 1px solid var(--camel);
+    padding: 8px;
+    text-align: center;
+}
+
+#leaderboard tr:nth-child(even){
+    background-color: #f2f2f2;
+}
+
+#leaderboard tr:nth-child(odd){
+    background-color: rgb(226, 226, 226);
+}
+
+#leaderboard th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background-color: var(--upsdell-red);
+    color: white;
 }
 
 @media only screen and (max-width: 600px) {
