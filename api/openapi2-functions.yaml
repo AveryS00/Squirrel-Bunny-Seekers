@@ -1,0 +1,165 @@
+# openapi2-functions.yaml
+swagger: '2.0'
+info:
+  title: Squirrel-and-Bunny-Seekers-API The API to manage the WPI bunny and squirrel seeking site
+  version: 1.0.0
+  description: API to handle account management and picture uploads
+tags:
+  - name: admin
+    description: Administrative user only calls
+  - name: guest
+    description: A not logged in user
+  - name: seeker
+    description: A logged in user
+schemes:
+  - https
+paths:
+  /create_account:
+    post:
+      tags:
+        - guest
+      summary: Creates an account for a not logged in user
+      description: Creates an account for a not logged in user
+      operationId: createAccount
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: UserAccountRequest
+          description: Create a user
+          required: true
+          schema:
+            $ref: '#/definitions/AccountCreateRequest'
+      responses:
+        200:
+          description: User account successfully created
+        400:
+          description: Invalid user account details
+        409:
+          description: Account already exists
+  /delete_account:
+    post:
+      tags:
+        - seeker
+        - admin
+      summary: Deletes an account
+      description: Deletes an account
+      operationId: deleteAccount
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: UserDeleteRequest
+          description: Delete a user
+          required: true
+          schema:
+            $ref: '#/definitions/AccountDeleteRequest'
+      responses:
+        200:
+          description: User account successfully deleted
+        400:
+          description: Invalid user account details
+  /view_images:
+    get:
+      tags:
+        - guest
+        - seeker
+        - admin
+      summary: Gets the most recent images and returns them
+      description: Gets the most recent images and returns them
+      operationId: viewImages
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        200:
+          description: Images returned
+  /upload_image:
+    post:
+      tags:
+        - seeker
+        - admin
+      summary: Uploads an image from a logged in user
+      description: Uploads an image from a logged in user
+      operationId: uploadImage
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: UploadImageRequest
+          description: Upload an image
+          required: true
+          schema:
+            $ref: '#/definitions/ImageUploadRequest'
+      responses:
+        200:
+          description: User image successfully uploaded
+        400:
+          description: Invalid image
+        409:
+          description: image already exists
+  /delete_image:
+    post:
+      tags:
+        - seeker
+        - admin
+      summary: Deletes an image
+      description: Deletes an image
+      operationId: deleteImage
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: DeleteImageRequest
+          description: Delete an image
+          required: true
+          schema:
+            $ref: '#/definitions/ImageDeleteRequest'
+      responses:
+        200:
+          description: User image successfully deleted
+        400:
+          description: Invalid image details
+definitions:
+  AccountCreateRequest:
+    type: object
+    required:
+      - email
+      - password
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+  AccountDeleteRequest:
+    type: object
+    required:
+      - email
+    properties:
+      email:
+        type: string
+  ImageUploadRequest:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+  ImageDeleteRequest:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+
+      ##      x-google-backend:
+##        address: https://us-central1-squirrel-and-bunny-seekers.cloudfunctions.net/helloGET
