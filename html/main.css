@@ -150,6 +150,7 @@ li a:hover:not(.active) {
     height: 200px;
     overflow: hidden;
     cursor: pointer;
+    object-fit: cover;
 }
 
 #gallery_container {
@@ -181,7 +182,7 @@ li a:hover:not(.active) {
     margin: auto;
     padding: 5px 15px 25px 15px;
     border: 1px solid #888;
-    width: 50%;
+    width: 70%;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
     -webkit-animation-name: animatetop;
     -webkit-animation-duration: 0.4s;
@@ -216,8 +217,11 @@ li a:hover:not(.active) {
 
   #modalImage {
       width: auto;
+      max-width: 250px;
       margin-left: 5%;
       height: 450px;
+      overflow: hidden;
+      object-fit: cover;
   }
 
 @media only screen and (max-width: 600px) {
@@ -243,5 +247,26 @@ li a:hover:not(.active) {
 
     li {
         width: 33.33%;
+    }
+
+    #modalImage {
+        width: 80%;
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
+    #mapCanvas {
+        width: 80% !important;
+    }
+
+    .modal-content {
+        height: 1150px !important;
+    }
+}
+
+@media only screen and (max-width: 1000px) {
+    .modal-content {
+        width: 90%;
+        height: auto;
     }
 }

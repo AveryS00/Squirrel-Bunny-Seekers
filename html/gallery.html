@@ -23,6 +23,7 @@
 						modal.style.display = "block";
 						plotAnimal(i);
 						modalImage.src = image;
+						document.getElementById('mapCanvas').style.height = modalImage.getBoundingClientRect().height + "px";
 					}})(i, pictures[i].image);
 					container.appendChild(galleryImage);
 				}
@@ -121,7 +122,7 @@
 				<div class="modal-body">
 					<p id="modelText" style="font-size: 25px;"></p>
 					<div>
-						<div id="mapCanvas" style="width: 40%;height:450px"></div>
+						<div id="mapCanvas" style="width: 230px;height:450px"></div>
 						<img id="modalImage"></img>
 					</div>
 				</div>
