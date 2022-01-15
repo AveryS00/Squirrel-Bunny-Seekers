@@ -20,7 +20,7 @@ public class UploadImageHandler implements HttpFunction {
     private Storage storage;
 
     @Override
-    public void service(HttpRequest request, HttpResponse response) throws IOException {
+    public void service(HttpRequest request, HttpResponse response) throws IOException, InterruptedException{
         // TODO implement logging
 
         // Can likely be taken to a higher level. IE, once initialized, can be used everywhere.
@@ -40,15 +40,9 @@ public class UploadImageHandler implements HttpFunction {
         boolean isBunny = false;
         boolean isSquirrel = false;
 
-        try {
-            isBunny = verifyBunny(url);
-            isSquirrel = verifySquirrel(url);
-        } catch(Exception e){
-            System.out.println("Something went wrong :(");
-            e.printStackTrace();
-        }
-
-
+        isBunny = verifyBunny(url);
+        isSquirrel = verifySquirrel(url);
+    
         // TODO remove from bucket if not a bunny or squirrel
         if (!isBunny && !isSquirrel)
             deleteFromBucket(sImage);
