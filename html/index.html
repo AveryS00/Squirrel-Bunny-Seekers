@@ -127,7 +127,7 @@
 
 		#mapCanvas {
 			height: 500px;
-			width :40%;
+			width :90%;
 			display: inline-block;
 		}
 
@@ -138,13 +138,48 @@
 			display: inline-block;
 			text-align: center;
 			padding: 10px 0px 60px 0px;
-			margin-top: 40px;
+			margin-bottom: 50px;
+			vertical-align: bottom;
 		}
 
 		#nav {
 			min-height: 100px;
 			width: 100%;
 			background-color: var(--upsdell-red);
+		}
+
+		#button_text {
+			width: 50%; 
+			display: inline-block;
+			font-size: 20px;
+			margin-right: 60px;
+			vertical-align: middle;
+			text-align: center;
+		}
+
+		#button_container {
+			display: inline-block; 
+			width: 90%; 
+			margin-top: 20px;
+			margin-bottom: 20px;
+		}
+
+		#uploadButton {
+			display: inline-block;
+		}
+
+		h1 {
+			margin: 0px 10% 0px 10%;
+		}
+
+		@media only screen and (max-width: 600px) {
+			#button_text {
+				width: 90%;
+				margin: 0; 
+				text-align: center;
+				margin-bottom: 20px;
+				margin-top: 10px;
+			}
 		}
 		</style>
     </head>
@@ -154,8 +189,8 @@
 		</div>
 		<div id="container">
 			<h1 style="font-size: 40px;">Post your best bunny and squirrel pics!</h1>
-			<div style="display: inline-block; width: 40%">
-				<p style="width: 90%; display: inline-block">Clear pictures of bunnies and squirrels that are less than a week old and within a mile of WPI's campus will raise your score. The clearer the picture the higher the points!</p><br>
+			<div id="button_container">
+				<p id="button_text">Clear pictures of bunnies and squirrels that are less than a week old and within a mile of WPI's campus will raise your score. The clearer the picture the higher the points!</p>
 				<input type="file" accept="image/*" id="choose-file" name="choose-file" style="display: none;" />
 				<button id="uploadButton" class="button" onclick="document.getElementById('choose-file').click();">Upload</button>
 			</div>
