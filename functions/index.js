@@ -24,3 +24,22 @@
      res.status(200).send(isBunny.length > 0);
  };
  
+ exports.squirrelIdentifier = async (req, res) => {
+    // Imports the Google Cloud client library
+     const vision = require('@google-cloud/vision');
+   
+     // Creates a client
+     const client = new vision.ImageAnnotatorClient();
+ 
+     const imgURI = req.body.imgURI;
+   
+     // Performs label detection on the image file
+     const [result] = await client.objectLocalization(imgURI);
+     const objects = result.localizedObjectAnnotations;
+     console.log('Objects:');
+     objects.forEach(object => console.log(`Name: ${object.name} Confidence: ${object.score}`));
+ 
+     const isSquirrel = objects.filter( object => object.name === 'Squirrel'); 
+ 
+     res.status(200).send(isSquirrel.length > 0);
+ };
