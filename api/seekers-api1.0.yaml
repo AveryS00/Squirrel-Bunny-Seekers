@@ -1,7 +1,6 @@
-# openapi2-functions.yaml
 swagger: '2.0'
 info:
-  title: Squirrel-and-Bunny-Seekers-API The API to manage the WPI bunny and squirrel seeking site
+  title: seekers-api The API to manage the WPI bunny and squirrel seeking site
   version: 1.0.0
   description: API to handle account management and picture uploads
 tags:
@@ -21,6 +20,8 @@ paths:
       summary: Creates an account for a not logged in user
       description: Creates an account for a not logged in user
       operationId: createAccount
+      x-google-backend:
+        address: https://us-east4-still-tensor-338300.cloudfunctions.net/createAccount-1
       consumes:
         - application/json
       produces:
@@ -47,6 +48,8 @@ paths:
       summary: Deletes an account
       description: Deletes an account
       operationId: deleteAccount
+      x-google-backend:
+        address: https://us-east4-still-tensor-338300.cloudfunctions.net/deleteAccount
       consumes:
         - application/json
       produces:
@@ -72,6 +75,8 @@ paths:
       summary: Gets the most recent images and returns them
       description: Gets the most recent images and returns them
       operationId: viewImages
+      x-google-backend:
+        address: https://us-east4-still-tensor-338300.cloudfunctions.net/viewImages
       produces:
         - application/json
       parameters: []
@@ -86,6 +91,8 @@ paths:
       summary: Uploads an image from a logged in user
       description: Uploads an image from a logged in user
       operationId: uploadImage
+      x-google-backend:
+        address: https://us-east4-still-tensor-338300.cloudfunctions.net/uploadImage
       consumes:
         - application/json
       produces:
@@ -112,6 +119,8 @@ paths:
       summary: Deletes an image
       description: Deletes an image
       operationId: deleteImage
+      x-google-backend:
+        address: https://us-east4-still-tensor-338300.cloudfunctions.net/deleteImage
       consumes:
         - application/json
       produces:
@@ -160,6 +169,3 @@ definitions:
     properties:
       name:
         type: string
-
-      ##      x-google-backend:
-##        address: https://us-central1-squirrel-and-bunny-seekers.cloudfunctions.net/helloGET
