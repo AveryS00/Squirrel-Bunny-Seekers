@@ -42,7 +42,7 @@ public class UploadImageHandler implements HttpFunction {
 
         try {
             isBunny = verifyBunny(url);
-            isSquirrel = verifyBunny(url);
+            isSquirrel = verifySquirrel(url);
         } catch(Exception e){
             System.out.println("Something went wrong :(");
             e.printStackTrace();
@@ -50,7 +50,7 @@ public class UploadImageHandler implements HttpFunction {
 
 
         // TODO remove from bucket if not a bunny or squirrel
-        if (false)
+        if (!isBunny && !isSquirrel)
             deleteFromBucket(sImage);
 
         // TODO if bunny or squirrel, add to database
