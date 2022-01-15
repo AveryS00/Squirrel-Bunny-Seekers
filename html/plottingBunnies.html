@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Multiple Markers Google Maps</title>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.11&sensor=false&key=AIzaSyDlWdrHUa89OCxOGi-RpfKjTpvA7eeAaAY" type="text/javascript"></script>
+        <script type="text/javascript">
+        function plot() {
+			var myStyles = [{
+				featureType: "poi",
+				elementType: "labels",
+				stylers: [{ visibility: "off" }]
+			}];
+			var options = {
+				zoom: 14.5,
+				center: new google.maps.LatLng(42.274404378511406, -71.80813596125853),
+				mapTypeId: google.maps.MapTypeId.TERRAIN,
+				mapTypeControl: false,
+				styles: myStyles 
+			};
+
+			var map = new google.maps.Map(document.getElementById('map_canvas'), options);
+
+			var locations = [{latitude:42.274988888888885, longitude:-71.80835555555555, bunny: true, squirrel: false, user: "Margaret", datetime: 1642219340, image: "bunny1.jpg"},
+					{latitude:42.27195505350241, longitude:-71.80839022451308, bunny: false, squirrel: true, user: "Avery", datetime: 1641892835, image: "bunny2.jpg"},
+					{latitude:42.276337181680475, longitude:-71.81259592818087, bunny: true, squirrel: true, user: "Char", datetime: 1608919235, image: "bunny3.jpg"}];
+
+			for (var i = 0; i < locations.length; i++) {
+				var loc = JSON.parse(JSON.stringify(locations[i]));
+				var date = new Date(loc.datetime * 1000);
+				var dateString =  (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+				var hours = date.getHours();
+				var minutes = "0" + date.getMinutes();
+				var time = (hours % 12) + ':' + minutes.substr(-2) + (hours >= 12? " pm" : " am");
+				var animalString = (loc.bunny? "Bunny" : "") + (loc.bunny && loc.squirrel? " and " : "") + (loc.squirrel? "Squirrel" : "");
+				
+				const icons = {
+					bunny: { url: "bunny.png", scaledSize: new google.maps.Size(30, 30) },
+					squirrel: { url: "squirrel.png", scaledSize: new google.maps.Size(30, 30) },
+					squnny: { url: "squnny.png", scaledSize: new google.maps.Size(33, 33) },
+				  };
+			
+				var marker = new google.maps.Marker({
+					position: new google.maps.LatLng(loc.latitude, loc.longitude),
+					map: map,
+					title: animalString + " (" + dateString + ")",
+					icon: icons[loc.bunny? (loc.squirrel? "squnny" : "bunny") : "squirrel"]
+				});
+
+				(function(marker, loc, animalString, time, dateString) {
+					google.maps.event.addListener(marker, 'click', function() {
+						infowindow = new google.maps.InfoWindow({
+							content: "<div style='text-align: center'> <div>" + loc.user + " spotted a " + animalString.toLowerCase() + " at " + time + " on " + dateString + "</div><br>"
+								+ "<image width=150spx src='" + loc.image + "' /></div>"
+						});
+						infowindow.open(map, marker);
+					});
+				})(marker, loc, animalString, time, dateString);
+			}
+        }
+        </script>
+    </head>
+    <body onload="plot();">
+        <div id="map_canvas" style="width: 800px; height:500px;"></div>
+    </body>
+</html>
