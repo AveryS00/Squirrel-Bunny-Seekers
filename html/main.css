@@ -21,6 +21,10 @@
   cursor: pointer;
 }
 
+.button:hover {
+    background-color: var(--light-red);
+}
+
 #uploadButton {
     margin-bottom: 20px;
 }

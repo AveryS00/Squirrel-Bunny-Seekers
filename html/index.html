@@ -4,100 +4,64 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>WPI Squirrel and Bunny Spotter</title>
-        <script src="https://maps.googleapis.com/maps/api/js?v=3.11&sensor=false&key=AIzaSyDlWdrHUa89OCxOGi-RpfKjTpvA7eeAaAY" type="text/javascript"></script>
-		<script src="bundle.js"></script>
-		<script type="text/javascript">
-		function setupImageUpload() {
-			const chooseFile = document.getElementById("choose-file");
-
-			chooseFile.addEventListener("change", function () { getImgData(); });
-
-			function getImgData() {
-			  const files = chooseFile.files[0];
-			  if (files) {
-				const fileReader = new FileReader();
-				fileReader.readAsArrayBuffer(files);
-				fileReader.addEventListener("load", function () {
-				  console.log(this.result);
-				  var dataToParse = window.parser.create(this.result);
-				  var data = dataToParse.parse();
-				  console.log(data);
-				  var pictureTimestamp = data.tags.CreateDate + 18000;
-				  var age = ((new Date().getTime()) / 1000) - pictureTimestamp;
-				  console.log("Image was taken at Unix timestamp " + pictureTimestamp + ", " + (age / 60) + " minutes ago");
-				  console.log(age > 604800? "Image is older than one week" : "Image is less than a week old");
-				  //lat/long 42.274404378511406, -71.80813596125853
-				  console.log((Math.pow(42.274404378511406 - data.tags.GPSLatitude,2)/Math.pow(0.01449275362,2)) + (Math.pow(-71.80813596125853 - data.tags.GPSLongitude,2)/Math.pow(0.01831501831,2)) <= 1);
-				});    
-			  }
-			}
-		}
-		
-		//create animal map
-        function plotAnimals() {
-			var myStyles = [{
-				featureType: "poi",
-				elementType: "labels",
-				stylers: [{ visibility: "off" }]
-			}];
-			var options = {
-				zoom: 14.5,
-				center: new google.maps.LatLng(42.274404378511406, -71.80813596125853),
-				mapTypeId: google.maps.MapTypeId.TERRAIN,
-				mapTypeControl: false,
-				styles: myStyles 
-			};
-
-			var map = new google.maps.Map(document.getElementById('mapCanvas'), options);
-
-			var locations = [{latitude:42.274988888888885, longitude:-71.80835555555555, bunny: true, squirrel: false, user: "Margaret", datetime: 1642219340, image: "bunny1.jpg"},
-					{latitude:42.27195505350241, longitude:-71.80839022451308, bunny: false, squirrel: true, user: "Avery", datetime: 1641892835, image: "bunny2.jpg"},
-					{latitude:42.276337181680475, longitude:-71.81259592818087, bunny: true, squirrel: true, user: "Char", datetime: 1608919235, image: "bunny3.jpg"}];
-
-			for (var i = 0; i < locations.length; i++) {
-				var loc = JSON.parse(JSON.stringify(locations[i]));
-				var date = new Date(loc.datetime * 1000);
-				var dateString =  (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
-				var hours = date.getHours();
-				var minutes = "0" + date.getMinutes();
-				var time = (hours % 12) + ':' + minutes.substr(-2) + (hours >= 12? " pm" : " am");
-				var animalString = (loc.bunny? "Bunny" : "") + (loc.bunny && loc.squirrel? " and " : "") + (loc.squirrel? "Squirrel" : "");
-				
-				const icons = {
-					bunny: { url: "bunny.png", scaledSize: new google.maps.Size(30, 30) },
-					squirrel: { url: "squirrel.png", scaledSize: new google.maps.Size(30, 30) },
-					squnny: { url: "squnny.png", scaledSize: new google.maps.Size(33, 33) },
-				  };
-			
-				var marker = new google.maps.Marker({
-					position: new google.maps.LatLng(loc.latitude, loc.longitude),
-					map: map,
-					title: animalString + " (" + dateString + ")",
-					icon: icons[loc.bunny? (loc.squirrel? "squnny" : "bunny") : "squirrel"]
-				});
-
-				(function(marker, loc, animalString, time, dateString) {
-					google.maps.event.addListener(marker, 'click', function() {
-						infowindow = new google.maps.InfoWindow({
-							content: "<div style='text-align: center'> <div>" + loc.user + " spotted a " + animalString.toLowerCase() + " at " + time + " on " + dateString + "</div><br>"
-								+ "<image width=150spx src='" + loc.image + "' /></div>"
-						});
-						infowindow.open(map, marker);
-					});
-				})(marker, loc, animalString, time, dateString);
-			}
-        }
+		<script type="text/javascript">		
 
 		function setupNav() {
 			document.getElementById("siteTitle").onclick = function () {
 				location.href = "index.html";
 			};
 		}
+
+        function setupLogin() {
+            document.getElementById("submit_login").onclick = function () {
+                var uname = document.getElementById("uname").value;
+                var pwd = document.getElementById("pwd").value;
+                //make login request
+                if(true) { //login valid
+                    var date = new Date();
+                    date.setTime(date.getTime()+(24*60*60*1000));
+                    var expires = "expires="+date.toGMTString();
+                    document.cookie = "username= " + uname + "; " + expires + "; " + "path=/";
+                    window.location.href = "home.html";
+                } else {
+                    document.cookie = ""; //just in case they have one
+                    alert("The username or password is incorrect.");
+                }
+			};
+        }
+
+        function setupSignUp() {
+            document.getElementById("switch").onclick = function () {
+                document.getElementById("loginDiv").style.display = "none";
+                document.getElementById("signUpDiv").style.display = "";
+                document.getElementById("signUpLink").style.display = "none";
+                document.getElementById("submit_login").style.display = "none";
+                document.getElementById("submit_register").style.display = "";
+                document.getElementById("title").innerText = "Sign Up";
+            }
+            document.getElementById("submit_register").onclick = function () {
+                var uname = document.getElementById("newUname").value;
+                var email = document.getElementById("email").value;
+                var pwd1 = document.getElementById("newPwd").value;
+                var pwd2 = document.getElementById("newPwd2").value;
+                if(pwd1 != pwd2) { alert("The passwords do not match."); }
+                else if(!uname || !email || !pwd1 || !pwd2) { alert("Username, email, or password is invalid."); }
+                else if(!email.includes("@wpi.edu")) { alert("You must use a WPI email."); }
+                else {
+                    // make account then redirect
+                    var date = new Date();
+                    date.setTime(date.getTime()+(24*60*60*1000));
+                    var expires = "expires="+date.toGMTString();
+                    document.cookie = "username= " + uname + "; " + expires + "; " + "path=/";
+                    window.location.href = "home.html";
+                }
+			};
+        }
 		
 		function load() {
 			setupNav();
-			setupImageUpload();
-			plotAnimals();
+            setupLogin();
+            setupSignUp();
 		}
         </script>
 		<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -108,19 +72,29 @@
     </head>
     <body onload="load();">
 		<ul id="nav">
-			<li id="siteTitle"><image src="squnny.png" width="40px" style="padding: 10px;"></image>WPI Squirrel and Bunny Spotter</li>
-			<li><a class="active" href="index.html">Home</a></li>
-			<li><a href="leaderboard.html">Leaderboard</a></li>
-			<li><a href="gallery.html">Gallery</a></li>
+			<li id="siteTitle" style="width: 100%;justify-content: center;"><image src="squnny.png" width="40px" style="padding: 10px;"></image>WPI Squirrel and Bunny Spotter</li>
 		</ul>
-		<div id="container">
-			<h1 style="font-size: 40px;">Post your best bunny and squirrel pics!</h1>
-			<div id="button_container">
-				<p id="button_text">Identifiable pictures of bunnies and squirrels that are less than a week old and within a mile of WPI's campus will raise your score. The clearer the picture, the higher the points. Keep an eye out for bunnies and squirrels in the same area; getting a picture of both in one shot earns you a bonus!</p>
-				<input type="file" accept="image/*" id="choose-file" name="choose-file" style="display: none;" />
-				<button id="uploadButton" class="button" onclick="document.getElementById('choose-file').click();">Upload</button>
-			</div>
-			<div id="mapCanvas"></div>
+		<div id="container" style="padding: 40px; width:fit-content;">
+			<h1 id="title" style="font-size: 40px;">Login</h1><br>
+            <div id="loginDiv" style="text-align:right">
+                <label for="uname"><b>Username or Email</b></label>
+                <input type="text" placeholder="Enter Username or Email" id="uname" name="uname" required><br><br>
+                <label for="psw"><b>Password</b></label>
+                <input type="password" placeholder="Enter Password" id="pwd" name="pwd" required><br><br><br>
+            </div>
+            <div id="signUpDiv" style="text-align:right; display: none">
+                <label for="newUname"><b>Username</b></label>
+                <input type="text" placeholder="Enter Username" id="newUname" name="newUname" required><br><br>
+                <label for="email"><b>WPI email</b></label>
+                <input type="text" placeholder="Enter WPI email" id="email" name="email" required><br><br>
+                <label for="newPwd"><b>Password</b></label>
+                <input type="password" placeholder="Enter Password" id="newPwd" name="newPwd" required><br><br>
+                <label for="newPwd2"><b>Retype Password</b></label>
+                <input type="password" placeholder="Enter Password" id="newPwd2" name="newPwd2" required><br><br><br>
+            </div>
+            <button id="submit_login" type="submit" class="button">Login</button>
+            <button id="submit_register" type="submit" class="button" style="display:none">Register</button><br><br>
+            <p id="signUpLink" style="font-size:13px">If you don't have an account, <a id="switch" style="text-decoration: underline;cursor:pointer; color: var(--upsdell-red)">sign up</a></p>
 		</div>
     </body>
 </html>

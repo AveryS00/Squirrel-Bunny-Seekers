@@ -90,14 +90,12 @@
 
 		function setupNav() {
 			document.getElementById("siteTitle").onclick = function () {
-				location.href = "index.html";
+				location.href = "home.html";
 			};
 		}
 		
 		function load() {
 			setupNav();
-			generateGallery();
-			setupImagePopup();
 		}
         </script>
 		<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -109,7 +107,7 @@
     <body onload="load();">
 		<ul id="nav">
 			<li id="siteTitle"><image src="squnny.png" width="40px" style="padding: 10px;"></image>WPI Squirrel and Bunny Spotter</li>
-			<li><a href="index.html">Home</a></li>
+			<li><a href="home.html">Home</a></li>
 			<li><a href="leaderboard.html">Leaderboard</a></li>
 			<li><a class="active" href="gallery.html">Gallery</a></li>
 			</ul>
