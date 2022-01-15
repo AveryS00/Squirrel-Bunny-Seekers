@@ -22,6 +22,19 @@ public class SeekerImage {
         this.lon = lon;
     }
 
+    public SeekerImage(String creator, String name, String url, int timestamp, Double lat, Double lon,
+                       String hash, boolean hasBunny, boolean hasSquirrel) {
+        this.creator = creator;
+        this.name = name;
+        this.url = url;
+        this.timestamp = timestamp;
+        this.lat = lat;
+        this.lon = lon;
+        this.hash = hash;
+        this.hasBunny = hasBunny;
+        this.hasSquirrel = hasSquirrel;
+    }
+
     public String toString() {
         return creator + ":" + name + ":" + url + ":" + timestamp;
     }

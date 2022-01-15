@@ -4,10 +4,17 @@ import com.google.cloud.functions.HttpFunction;
 import com.google.cloud.functions.HttpRequest;
 import com.google.cloud.functions.HttpResponse;
 import com.google.cloud.storage.*;
+import com.google.common.io.BaseEncoding;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
+import java.security.MessageDigest;
 
+import database.ImageDAO;
 import entity.SeekerImage;
 
 public class UploadImageHandler implements HttpFunction {
@@ -15,33 +22,69 @@ public class UploadImageHandler implements HttpFunction {
     private static final String projectId = "still-tensor-338300";
     private static final String bucketName = "msu4xohkt-sjiuw-z4 ";
     private static final String storage_api_url = "https://storage.googleapis.com/";
+    private static final Gson gson = new Gson();
     private Storage storage;
 
     @Override
     public void service(HttpRequest request, HttpResponse response) throws IOException {
         // TODO implement logging
-
+        SeekerImage sImage;
+        JsonObject body;
+        String url;
+        String data;
+        String contentType = request.getContentType().orElse("");
         // Can likely be taken to a higher level. IE, once initialized, can be used everywhere.
         storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
 
+        // Get values out of json request
+        if (contentType.equals("application/json")) {
+            body = gson.fromJson(request.getReader(), JsonObject.class);
+
+            sImage = createImageObject(body);
+            if (sImage == null) {
+                response.setStatusCode(HttpURLConnection.HTTP_BAD_REQUEST);
+                return;
+            }
+
+            // TODO fix this data format
+            if (body.has("base64encoded")){
+                data = body.get("base64encoded").getAsString();
+
+                try {
+                    // Create a hash of the image and assign it to the
+                    MessageDigest md = MessageDigest.getInstance("MD5");
+                    byte[] digest = md.digest(data.getBytes());
+                    sImage.setHash(BaseEncoding.base16().lowerCase().encode(digest));
+                } catch (NoSuchAlgorithmException e) {
+                    response.setStatusCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
+                    return;
+                }
+            }
+            else {
+                response.setStatusCode(HttpURLConnection.HTTP_BAD_REQUEST);
+                return;
+            }
+        } else {
+            response.setStatusCode(HttpURLConnection.HTTP_BAD_REQUEST);
+            return;
+        }
+
         // TODO remove metadata from image
 
-        // TODO construct Image object
-        SeekerImage sImage = new SeekerImage();
 
-        // TODO add to bucket
-        byte[] data = {};
-        String url = uploadToBucket(sImage, data);
+        // add to bucket
+        url = uploadToBucket(sImage, data.getBytes());
         sImage.setUrl(url);
 
         // TODO Verify it contains a bunny or squirrel
 
         // TODO remove from bucket if not a bunny or squirrel
         if (false)
-            deleteFromBucket(sImage);
+            if (deleteFromBucket(sImage))
+                System.out.println("Deleted image");
 
         // TODO if bunny or squirrel, add to database
-        if (uploadToDatabase())
+        if (uploadToDatabase(sImage))
             System.out.println("Success");
     }
 
@@ -49,6 +92,7 @@ public class UploadImageHandler implements HttpFunction {
         // TODO Char add algorithm
         return false;
     }
+
 
     /**
      * Uploads the byte array to the website bucket and gives it a GUID name. Returns the url where it is accessible.
@@ -76,85 +120,67 @@ public class UploadImageHandler implements HttpFunction {
         return storage_api_url + bucketName + "/" + seekerImage.getName();
     }
 
+
+    /**
+     * Deletes the image object from the bucket
+     * @param seekerImage The object containing the name of the image
+     * @return True if deleted
+     */
     private boolean deleteFromBucket(SeekerImage seekerImage) {
-        // TODO determine if success
-        storage.delete(bucketName, seekerImage.getName());
+        try {
+            storage.delete(bucketName, seekerImage.getName());
+        } catch (StorageException se) {
+            return false;
+        }
         return true;
     }
 
-    private boolean uploadToDatabase() {
-        // TODO
-        return false;
+
+    /**
+     * Uploads the Image object to the database
+     * @param seekerImage The image object
+     * @return True if uploaded
+     */
+    private boolean uploadToDatabase(SeekerImage seekerImage) {
+        ImageDAO dao;
+        try {
+            dao = new ImageDAO();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return dao.addImage(seekerImage);
+    }
+
+
+    /**
+     * Constructs an image object based on the json request. Returns null if required values are missing
+     * @param json The json body of the HTTP request
+     * @return An Image object based on the data
+     */
+    private SeekerImage createImageObject(JsonObject json) {
+        SeekerImage seekerImage = new SeekerImage();
+
+        if (json.has("creator"))
+            seekerImage.setCreator(json.get("creator").getAsString());
+        else
+            return null;
+
+        if (json.has("name"))
+            seekerImage.setName(json.get("name").getAsString());
+        else
+            return null;
+
+        if (json.has("timestamp"))
+            seekerImage.setTimestamp(json.get("timestamp").getAsInt());
+
+        if (json.has("lat"))
+            seekerImage.setLat(json.get("lat").getAsDouble());
+
+        if (json.has("lon"))
+            seekerImage.setLon(json.get("lon").getAsDouble());
+
+        return seekerImage;
     }
 }
-
-
-//import http.UploadVideoSegmentRequest;
-//import http.UploadVideoSegmentResponse;
-//import java.io.ByteArrayInputStream;
-//import com.amazonaws.regions.Regions;
-//import com.amazonaws.services.lambda.runtime.Context;
-//import com.amazonaws.services.lambda.runtime.LambdaLogger;
-//import com.amazonaws.services.lambda.runtime.RequestHandler;
-//import com.amazonaws.services.s3.AmazonS3;
-//import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-//import com.amazonaws.services.s3.model.CannedAccessControlList;
-//import com.amazonaws.services.s3.model.ObjectMetadata;
-//import com.amazonaws.services.s3.model.PutObjectRequest;
-//import database.VideoSegmentDAO;
-//import entity.VideoSegment;
-//
-//public class UploadVideoSegmentHandler implements RequestHandler<UploadVideoSegmentRequest, UploadVideoSegmentResponse> {
-//    public LambdaLogger logger;
-//    private AmazonS3 s3 = null;
-//    private final String URL = "https://cs3733-witch-of-endor.s3.us-east-2.amazonaws.com/VideoSegments/";
-//
-//    @Override
-//    public UploadVideoSegmentResponse handleRequest(UploadVideoSegmentRequest req, Context context) {
-//        logger = context.getLogger();
-//        logger.log("Loading Java Lambda handler to upload video segment.");
-//        String text = req.text.replaceAll("\\s+","");
-//
-//        UploadVideoSegmentResponse response = null;
-//        logger.log(req.toString());
-//
-//        byte[] encoded = java.util.Base64.getDecoder().decode(req.base64encoded);
-//        try {
-//            VideoSegmentDAO dao = new VideoSegmentDAO();
-//            if (addToBucket(encoded, text)) {
-//                logger.log("attempting to add to database");
-//                VideoSegment vs = new VideoSegment(URL + text + ".ogg", req.character, req.text, true);
-//                if (dao.addVideoSegment(vs)) {
-//                    logger.log("successfully added");
-//                    dao.close();
-//                    return new UploadVideoSegmentResponse(200, "Video segment uploaded: " + req.text);
-//                }
-//            }
-//            dao.close();
-//            response = new UploadVideoSegmentResponse(400, "Unable to upload video segment " + req.text);
-//        } catch (Exception e) {
-//            response = new UploadVideoSegmentResponse(500, "Unable to upload video segment " + req.text + " " + e.getMessage());
-//            logger.log(e.getMessage());
-//        }
-//
-//        return response;
-//    }
-//
-//    public boolean addToBucket (byte[] contents, String name) throws Exception {
-//        logger.log("trying to add to bucket");
-//
-//        if (s3 == null) {
-//            logger.log("attach to S3 request");
-//            s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_2).build();
-//            logger.log("attach to S3 succeed");
-//        }
-//
-//        ByteArrayInputStream bais = new ByteArrayInputStream(contents);
-//        ObjectMetadata omd = new ObjectMetadata();
-//        omd.setContentLength(contents.length);
-//        s3.putObject(new PutObjectRequest("cs3733-witch-of-endor", "VideoSegments/" + name + ".ogg", bais, omd).withCannedAcl(CannedAccessControlList.PublicRead));
-//
-//        logger.log(" added to bucket ");
-//        return true;
-//    }
-//}

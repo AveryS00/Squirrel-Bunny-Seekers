@@ -9,9 +9,9 @@ function handleUploadImage() {
     form.uploadButton.disabled = true;
 
     let data = {};
-    // TODO assign a guid name on server instead of using user file_name
-    // TODO strip metadata on server side
-    // data["img_name"] = document.querySelector('input[type=file]').files[0].name;
+    // TODO extract email of uploader
+    data["creator"] = "";
+    data["name"] = document.querySelector('input[type=file]').files[0].name;
     data["lat"] = 0;
     data["lon"] = 0;
     data["timestamp"] = 0;
@@ -51,7 +51,7 @@ function handleFileSelect(evt) {
         document.uploadImageForm.base64EncodedValue.value = "";
         alert("File size too large to use: " + files[0].size + " bytes");
     } else {
-        // Run Metadata checks here
+        // TODO Run Metadata checks here
         const reader = new FileReader();
         reader.readAsDataURL(files[0]);
 
