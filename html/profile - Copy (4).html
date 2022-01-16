@@ -125,7 +125,7 @@
                         res2.json().then(users => {
                             users = users.sort((a, b) => b.points - a.points);
                             document.getElementById("title").innerText = "Hello " + userData[0].uname + "!";
-                            document.getElementById("user_desc").innerText = "You have " + userData[0].points + " points and you're Rank " + (users.findIndex(u => u.email == userData[0].email) + 1) + " on the photography leaderboard. Here are your pictures so far!";
+                            document.getElementById("user_desc").innerText = "You have " + userData[0].points + " points and you're Rank " + users.findIndex(u => u.email == userData[0].email) + " on the photography leaderboard. Here are your pictures so far!";
                             document.getElementById("deleteAccountButton").onclick = function() {
                                 if (confirm("Do you really want to delete your account? This will delete all of your pictures permanently.")) {
                                     //delete account
