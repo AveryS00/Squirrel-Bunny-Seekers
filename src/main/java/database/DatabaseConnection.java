@@ -9,10 +9,10 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class DatabaseConnection {
+    private static final String dbName = System.getenv("dbName");
     private static final String dbUsername = System.getenv("dbUsername");
     private static final String dbPassword = System.getenv("dbPassword");
     private static final String dbConnectionName = System.getenv("dbConnectionName");
-    private static final String dbName = "seekersv1";
 
     static HikariDataSource connectionPool;
 
@@ -35,7 +35,8 @@ public class DatabaseConnection {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(jdbcURL);
         config.setDataSourceProperties(connProps);
-        config.setConnectionTimeout(10000); // 10s
+        config.setConnectionTimeout(100000); // 100s
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
 
         connectionPool = new HikariDataSource(config);
         return connectionPool;

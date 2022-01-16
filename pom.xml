@@ -45,13 +45,27 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>5.0.0</version>
+            <version>5.0.1</version>
         </dependency>
 
         <dependency>
             <groupId>com.google.cloud.sql</groupId>
             <artifactId>mysql-socket-factory-connector-j-8</artifactId>
             <version>1.4.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mysql.jdbc.Driver</groupId>
+            <artifactId>com.mysql.jdbc.Driver</artifactId>
+            <version>8.0.27</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/mysql-connector-java-8.0.27.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.25</version>
         </dependency>
     </dependencies>
 

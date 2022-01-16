@@ -118,7 +118,7 @@ public class UploadImageHandler implements HttpFunction {
         isSquirrel = verifySquirrel(url);
         logger.info("Contains bunny? " + isBunny);
         logger.info("Contains squirrel? " + isSquirrel);
-    
+
         // Remove from bucket if not a bunny or squirrel
         if (!isBunny && !isSquirrel) {
             logger.error("No bunny or squirrel seen, deleting from bucket");
@@ -228,9 +228,8 @@ public class UploadImageHandler implements HttpFunction {
         try {
             dao = new ImageDAO();
         } catch (Exception e) {
-            logger.error("Unable to connect to database");
-            logger.error(e.getMessage());
-            e.printStackTrace();
+            logger.error("Unable to upload image to database");
+            logger.error(e.toString());
             return false;
         }
 
