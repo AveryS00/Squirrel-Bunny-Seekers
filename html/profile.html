@@ -94,6 +94,11 @@
             document.getElementById("title").innerText = "Hello " + document.cookie.split("=")[1] + "!";
             //get actual score and rank
             document.getElementById("user_desc").innerText = "Your score is 20 and you're Rank 3 on the photography leaderboard. Here are your pictures so far!";
+            document.getElementById("deleteAccountButton").onclick = function() {
+                if (confirm("Do you really want to delete your account? This will delete all of your pictures permanently.")) {
+                    //delete account
+                }
+            }
         }
 
 		function setupNav() {
@@ -159,6 +164,7 @@
 
 			</div>
 			<div id="gallery_container"></div>
+            <button id="deleteAccountButton" class="button" >Delete Account</button>
 		</div>
     </body>
 </html>
