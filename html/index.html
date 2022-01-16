@@ -18,16 +18,25 @@
                 var pwd = document.getElementById("pwd").value;
                 if(!uname || !pwd) { alert("Username or password is invalid."); }
                 else {
-                    //make login request
-                    if(true) { //login valid
-                        var date = new Date();
-                        date.setTime(date.getTime()+(24*60*60*1000));
-                        var expires = "expires="+date.toGMTString();
-                        document.cookie = "username= " + uname + "; " + expires + "; " + "path=/";
-                        window.location.href = "home.html";
-                    } else {
-                        alert("The username or password is incorrect.");
-                    }
+                    fetch("https://us-east4-still-tensor-338300.cloudfunctions.net/verifyLogin", {
+                        method: "POST",
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        credentials: 'same-origin', 
+                        body: JSON.stringify({uname: uname, password: pwd})
+                    }).then(res => {
+                        res.json().then(data => {
+                            if(data.message == "verified") {
+                                var date = new Date();
+                                date.setTime(date.getTime()+(24*60*60*1000));
+                                var expires = "expires="+date.toGMTString();
+                                document.cookie = "username= " + uname + "; " + expires + "; " + "path=/";
+                                window.location.href = "home.html";
+                            } else {
+                                alert("The username or password is incorrect.");
+                            }
+                        })
+                    });
                 }
 			};
         }
@@ -50,12 +59,20 @@
                 else if(!uname || !email || !pwd1 || !pwd2) { alert("Username, email, or password is invalid."); }
                 else if(!email.includes("@wpi.edu")) { alert("You must use a WPI email."); }
                 else {
-                    // make account then redirect
-                    var date = new Date();
-                    date.setTime(date.getTime()+(24*60*60*1000));
-                    var expires = "expires="+date.toGMTString();
-                    document.cookie = "username= " + uname + "; " + expires + "; " + "path=/";
-                    window.location.href = "home.html";
+                    fetch("https://us-east4-still-tensor-338300.cloudfunctions.net/createAccount", {
+                        method: "POST",
+                        mode:'no-cors',
+                        headers: {'Content-Type': 'application/json'}, 
+                        body: JSON.stringify({email: email, uname: uname, password: pwd1})
+                    }).then(res => {
+                        console.log(res);
+                    });
+                    // // make account then redirect
+                    // var date = new Date();
+                    // date.setTime(date.getTime()+(24*60*60*1000));
+                    // var expires = "expires="+date.toGMTString();
+                    // document.cookie = "username= " + uname + "; " + expires + "; " + "path=/";
+                    // window.location.href = "home.html";
                 }
 			};
         }
