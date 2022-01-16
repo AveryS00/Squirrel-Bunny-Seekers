@@ -1,5 +1,6 @@
 package database;
 
+import com.zaxxer.hikari.HikariDataSource;
 import entity.SeekerImage;
 
 import java.sql.Connection;
@@ -9,7 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ImageDAO {
-    Connection conn;
+    static HikariDataSource connectionPool;
     PreparedStatement stmt;
     ResultSet set;
 
@@ -19,7 +20,7 @@ public class ImageDAO {
      * @throws Exception Either ClassNotFound or SQL exception
      */
     public ImageDAO() throws Exception {
-        this.conn = DatabaseConnection.connect();
+        connectionPool = DatabaseConnection.connect();
     }
 
 
@@ -29,7 +30,7 @@ public class ImageDAO {
      * @return A SeekerImage object
      */
     public SeekerImage getImageObject(String hash) {
-        try {
+        try (Connection conn = connectionPool.getConnection()){
             stmt = conn.prepareStatement("SELECT * FROM image WHERE hash = ?");
             stmt.setString(1, hash);
             set = stmt.executeQuery();
@@ -113,7 +114,7 @@ public class ImageDAO {
      * @return True if added, false otherwise
      */
     public boolean addImage(SeekerImage seekerImage) {
-        try {
+        try (Connection conn = connectionPool.getConnection()) {
             if (isInDatabase(seekerImage)) {
                 return false;
             }
@@ -160,7 +161,7 @@ public class ImageDAO {
      * @throws SQLException If sql errors
      */
     private boolean isInDatabase (SeekerImage seekerImage) throws SQLException {
-        try {
+        try (Connection conn = connectionPool.getConnection()) {
             try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM image WHERE hash = ?")) {
                 stmt.setString(1, seekerImage.getHash());
 
