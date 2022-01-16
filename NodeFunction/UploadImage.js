@@ -214,7 +214,7 @@ function uploadToDatabase(image_data) {
 }
 
 function updateUserPoints(points, email) {
-    pool.query('UPDATE user SET points = points + {points} WHERE email = {email}',
+    pool.query(`UPDATE user SET points = points + ${points} WHERE email = ${email}`,
 
         (error, data) => {
             if (error) {
