@@ -27,15 +27,15 @@ function handleUploadImage() {
     xhr.send(js);
 
     xhr.onloadend = function() {
-        console.log(xhr);
-        console.log(xhr.request);
+        //console.log(xhr);
+        //console.log(xhr.request);
         if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.statusCode === 200) {
-                console.log("XHR:" + xhr.responseText);
+                //console.log("XHR:" + xhr.responseText);
                 alert("Uploaded Image")
                 location.reload();
             } else {
-                console.log("actual:" + xhr.responseText);
+                //console.log("actual:" + xhr.responseText);
                 const js = JSON.parse(xhr.responseText);
                 const err = js["response"];
                 alert(err);

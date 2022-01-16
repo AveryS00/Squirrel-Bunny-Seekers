@@ -25,12 +25,6 @@ public class DatabaseConnection {
      */
     protected static Connection connect() throws Exception {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw e;
-        }
-        try {
             conn = DriverManager.getConnection(
                     jdbcTag + rdsMySqlDatabaseUrl + ":" + rdsMySqlDatabasePort + "/" + dbName + multiQueries,
                     dbUsername,
