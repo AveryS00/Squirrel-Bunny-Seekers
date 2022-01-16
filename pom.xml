@@ -35,6 +35,12 @@
             <version>1.0.4</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-logging-logback</artifactId>
+            <version>0.122.9-alpha</version>
+        </dependency>
     </dependencies>
 
     <build>
