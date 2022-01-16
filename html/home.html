@@ -57,7 +57,19 @@
 					  alert("This image was not taken within the past week."); 
 					  return;
 				  }
-				  // if image is fine upload it
+				  document.getElementById("uploadButton").onclick = function() {
+					fetch("https://us-east4-still-tensor-338300.cloudfunctions.net/getUser", {
+						method: "POST",
+						mode: 'cors',
+						cache: 'no-cache',
+						credentials: 'same-origin', 
+						body: JSON.stringify({uname: document.cookie.split("=")[1]})
+					}).then(res => {
+						res.json().then(userData => {
+					  		handleUploadImage(userData[0].email, data.tags.GPSLatitude, data.tags.GPSLongitude, pictureTimestamp);
+						});
+					});
+				  }
 				});    
 			  }
 			}
@@ -173,14 +185,13 @@
 			<div id="button_container">
 				<p id="button_text">Identifiable pictures of bunnies and squirrels that are less than a week old and within a mile of WPI's campus will raise your score. The clearer the picture, the higher the points. Keep an eye out for bunnies and squirrels in the same area; getting a picture of both in one shot earns you a bonus!</p>
 				<form id="uploadImageForm" name="uploadImageForm" method="post">
-					<input type="file" accept="image/*" id="image" name="image">
+					<input id="choose-file" type="file" accept="image/*" id="image" name="image">
 					<input id="base64Encoding" name="base64EncodedValue" hidden=true value="">
-					<input type="button" id="uploadButton" name="uploadButton" value="Upload Image"
-						   disabled onClick="handleUploadImage()">
+					<input type="button" id="uploadButton" name="uploadButton" value="Upload Image">
 				</form>
 
 				<script>
-					document.getElementById('image').addEventListener('change', handleFileSelect, false);
+					document.getElementById('choose-file').addEventListener('change', handleFileSelect, false);
 				</script>
 
 			</div>

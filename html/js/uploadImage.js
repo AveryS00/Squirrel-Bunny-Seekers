@@ -4,7 +4,7 @@
 const MAX_IMAGE_SIZE = 40000000;
 
 
-function handleUploadImage() {
+function handleUploadImage(email, lat, lon, timestamp) {
     const form = document.uploadImageForm;
     form.uploadButton.disabled = true;
 
