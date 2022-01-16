@@ -48,10 +48,10 @@ public class UploadImageHandler implements HttpFunction {
 
         // Cors
         response.appendHeader("Access-Control-Allow-Origin", "*");
-        response.appendHeader("Access-Control-Allow-Methods", "POST");
+        response.appendHeader("Access-Control-Allow-Methods", "GET, POST");
         if ("OPTIONS".equals(request.getMethod())) {
-            response.appendHeader("Access-Control-Allow-Headers", "Content-Type");
-            response.appendHeader("Access-Control-Max-Age", "3600");
+            //response.appendHeader("Access-Control-Allow-Headers", "Content-Type");
+            //response.appendHeader("Access-Control-Max-Age", "3600");
             response.setStatusCode(HttpURLConnection.HTTP_NO_CONTENT);
             return;
         }

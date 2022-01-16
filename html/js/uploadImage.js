@@ -10,11 +10,11 @@ function handleUploadImage() {
 
     let data = {};
     // TODO extract email of uploader
-    data["creator"] = "";
+    data["creator"] = "test2@wpi.edu";
     data["name"] = document.querySelector('input[type=file]').files[0].name;
-    data["lat"] = 0;
-    data["lon"] = 0;
-    data["timestamp"] = 0;
+    data["lat"] = 47;
+    data["lon"] = -71;
+    data["timestamp"] = 1642291000;
 
     // Removes preamble which states this is a base64 value
     const segments = form.base64EncodedValue.value.split(',');
@@ -23,7 +23,8 @@ function handleUploadImage() {
     let js = JSON.stringify(data);
     console.log("JS:" + js);
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", upload_image_url, true);
+    xhr.open("POST", 'https://seekersapi1-0-1pwxcx8v.uk.gateway.dev/upload_image', true);
+    xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send(js);
 
     xhr.onloadend = function() {

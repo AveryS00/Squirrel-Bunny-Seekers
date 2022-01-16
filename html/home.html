@@ -5,6 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>WPI Squirrel and Bunny Spotter</title>
         <script src="https://maps.googleapis.com/maps/api/js?v=3.11&sensor=false&key=AIzaSyDlWdrHUa89OCxOGi-RpfKjTpvA7eeAaAY" type="text/javascript"></script>
+		<script src="./js/uploadImage.js"></script>
 		<script src="./js/bundle.js"></script>
 		<script type="text/javascript">
 		function setupImageUpload() {
@@ -149,8 +150,17 @@
 			<h1 style="font-size: 40px;">Post your best bunny and squirrel pics!</h1>
 			<div id="button_container">
 				<p id="button_text">Identifiable pictures of bunnies and squirrels that are less than a week old and within a mile of WPI's campus will raise your score. The clearer the picture, the higher the points. Keep an eye out for bunnies and squirrels in the same area; getting a picture of both in one shot earns you a bonus!</p>
-				<input type="file" accept="image/*" id="choose-file" name="choose-file" style="display: none;" />
-				<button id="uploadButton" class="button" onclick="document.getElementById('choose-file').click();">Upload</button>
+				<form id="uploadImageForm" name="uploadImageForm" method="post">
+					<input type="file" accept="image/*" id="image" name="image">
+					<input id="base64Encoding" name="base64EncodedValue" hidden=true value="">
+					<input type="button" id="uploadButton" name="uploadButton" value="Upload Image"
+						   disabled onClick="handleUploadImage()">
+				</form>
+
+				<script>
+					document.getElementById('image').addEventListener('change', handleFileSelect, false);
+				</script>
+
 			</div>
 			<div id="mapCanvas"></div>
 		</div>
