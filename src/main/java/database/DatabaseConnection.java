@@ -1,39 +1,44 @@
 package database;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DatabaseConnection {
-    private static final String rdsMySqlDatabaseUrl = System.getenv("rdsMySqlDatabaseUrl");
     private static final String dbUsername = System.getenv("dbUsername");
     private static final String dbPassword = System.getenv("dbPassword");
+    private static final String dbConnectionName = System.getenv("dbConnectionName");
+    private static final String dbName = "seekersv1";
 
-    private static final String jdbcTag = "jdbc:mysql://";
-    private static final String rdsMySqlDatabasePort = "3306";
-    private static final String multiQueries = "?allowMultiQueries=true";
-    private static final String dbName = "innodb";
-
-    static Connection conn;
+    static HikariDataSource connectionPool;
 
     /**
      * Creates the connection to the database
-     * @return The database connection
-     * @throws SQLException if unable to connect to the database
+     * @return The database connectionpool
      */
-    protected static Connection connect() throws Exception {
-        try {
-            conn = DriverManager.getConnection(
-                    jdbcTag + rdsMySqlDatabaseUrl + ":" + rdsMySqlDatabasePort + "/" + dbName + multiQueries,
-                    dbUsername,
-                    dbPassword);
-            return conn;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        }
+    protected static HikariDataSource connect() {
+        if (connectionPool != null)
+            return connectionPool;
+
+        String jdbcURL = String.format("jdbc:mysql:///%s", dbName);
+        Properties connProps = new Properties();
+        connProps.setProperty("user", dbUsername);
+        connProps.setProperty("password", dbPassword);
+        connProps.setProperty("socketFactory", "com.google.cloud.sql.mysql.SocketFactory");
+        connProps.setProperty("cloudSqlInstance", dbConnectionName);
+
+        // Initialize connection pool
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(jdbcURL);
+        config.setDataSourceProperties(connProps);
+        config.setConnectionTimeout(10000); // 10s
+
+        connectionPool = new HikariDataSource(config);
+        return connectionPool;
     }
 
     /**
