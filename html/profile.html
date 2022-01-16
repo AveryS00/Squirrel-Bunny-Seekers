@@ -101,7 +101,10 @@
 				location.href = "home.html";
 			};
             document.getElementById("logout").onclick = function () {
-                document.cookie = "";
+                var date = new Date();
+                date.setTime(date.getTime()+(24*60*60*1000));
+                var expires = "expires="+date.toGMTString();
+                document.cookie = "username=; " + expires + "; " + "path=/";
 				location.href = "index.html";
 			};
 			document.getElementById("profile").onclick = function () {
@@ -116,7 +119,7 @@
 		}
 		
 		function load() {
-            // checkLoggedIn();
+            checkLoggedIn();
             loadUser();
 			setupNav();
 			setupImagePopup();
