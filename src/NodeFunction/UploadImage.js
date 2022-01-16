@@ -1,9 +1,9 @@
 const {randomUUID, createHash} = require('crypto');
-const fs = require('fs');
+//const fs = require('fs');
 
 
 // Imports the Google Cloud client library
-const gcs = require('@google-cloud/storage');
+//const gcs = require('@google-cloud/storage');
 const mysql = require('mysql');
 
 const pool = mysql.createPool({
@@ -21,11 +21,12 @@ const pool = mysql.createPool({
  */
 
 exports.uploadImage = async (req, res) => {
-    console.log(`Received request: ${req.toString()}`);
+    console.log('Received request');
+    console.log(req.body);
 
-    const stream = require('stream');
-    const bufferStream = new stream.PassThrough();
-    bufferStream.end(Buffer.from(req.body.base64encoded, 'base64'));
+    //const stream = require('stream');
+    //const bufferStream = new stream.PassThrough();
+    //bufferStream.end(Buffer.from(req.body.base64encoded, 'base64'));
 
     const image = Buffer.from(req.body.base64encoded, 'base64');
     const new_name = randomUUID() + req.body.name.split('.').pop()
@@ -39,36 +40,37 @@ exports.uploadImage = async (req, res) => {
         'hasBunny': false,
         'hasSquirrel': false
     };
-    const storage = new gcs.Storage();
-    const myBucket = storage.bucket('msu4xohkt-sjiuw-z4');
-    const file = myBucket.file(image_data['name']);
+    //const storage = new gcs.Storage();
+    //const myBucket = storage.bucket('msu4xohkt-sjiuw-z4');
+    //const file = myBucket.file(image_data['name']);
 
     // fs.writeFile(new_name, req.body.base64encoded, {encoding: 'base64'},
     //     function(err) {
     //         console.log('File created');
     //     });
 
-    console.log(`Image Data: ${image_data.toString()}`);
+    console.log('Image Data');
+    console.log(image_data);
 
-    bufferStream.pipe(file.createWriteStream({
-        metadata: {
-            contentType: 'image/jpeg',
-            metadata: {
-                custom: 'metadata'
-            }
-        },
-        public: true,
-        validation: "md5"
-    })).on('error', (err) => {
-        console.log('unable to upload image' + err);
-    }).on('finish', () => {
-        console.log('Image uploaded');
-
+    // bufferStream.pipe(file.createWriteStream({
+    //     metadata: {
+    //         contentType: 'image/jpeg',
+    //         metadata: {
+    //             custom: 'metadata'
+    //         }
+    //     },
+    //     public: true,
+    //     validation: "md5"
+    // })).on('error', (err) => {
+    //     console.log('unable to upload image' + err);
+    // }).on('finish', () => {
+    //     console.log('Image uploaded');
+    uploadToBucket(image, image_data, () => {
         const squirrel_points = verifySquirrel(image_data['url']);
         const bunny_points = verifyBunny(image_data['url']);
 
         if (squirrel_points !== 0 && bunny_points !== 0) {
-            deleteFromBucket(storage, image_data['name']);
+            //deleteFromBucket(storage, image_data['name']);
         } else {
             if (squirrel_points >= 0) {
                 image_data['hasSquirrel'] = true;
@@ -80,6 +82,7 @@ exports.uploadImage = async (req, res) => {
             updateUserPoints(squirrel_points + bunny_points, image_data['email']);
         }
     });
+    //});
 
     // uploadToBucket(storage, image_data)
     //     .then(res.status(200).send("Image uploaded"))
@@ -100,6 +103,62 @@ exports.uploadImage = async (req, res) => {
 //
 //
 // }
+
+function uploadToBucket(image, image_data, callback) {
+    console.log('Trying to upload to bucket');
+
+    const gcs = require('@google-cloud/storage')({
+        projectId: 'still-tensor-338300'
+    });
+
+    const stream = require('stream');
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(Buffer.from(image, 'base64'));
+
+    //Define bucket.
+    const myBucket = gcs.bucket('msu4xohkt-sjiuw-z4');
+    //Define file & file name.
+    const file = myBucket.file(image_data['name']);
+    //Pipe the 'bufferStream' into a 'file.createWriteStream' method.
+    bufferStream.pipe(file.createWriteStream({
+        metadata: {
+            contentType: 'image/jpeg',
+            metadata: {
+                custom: 'metadata'
+            }
+        },
+        public: true
+    }))
+        .on('error', function(err) {
+            console.log('Error');
+            console.log(err);
+        })
+        .on('finish', function() {
+            console.log('Success');
+            callback();
+        });
+
+
+    // const base64Img = require('base64-img');
+    // const filePath = base64Img.imgSync(image, 'dest', image_data['name']);
+    //
+    // // Instantiate the GCP Storage instance
+    // const gcs = require('@google-cloud/storage')(),
+    //     bucket = gcs.bucket('msu4xohkt-sjiuw-z4');
+    //
+    // // Upload the image to the bucket
+    // bucket.upload(__dirname.slice(0, -15) + filePath, {
+    //     destination: image_data['name'],
+    //     public: true
+    // }, function(error, file) {
+    //     if (error) {
+    //         console.log(`Error encountered: ${error}`)
+    //         return;
+    //     }
+    //     console.log('Uploaded to bucket')
+    //     callback();
+    // });
+}
 
 async function verifySquirrel(uri) {
     console.log('Checking for squirrel');

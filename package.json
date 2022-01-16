@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "@google-cloud/storage": "^5.17.0",
+    "base64-img": "^1.0.4",
     "mysql": "^2.18.1"
   }
 }
