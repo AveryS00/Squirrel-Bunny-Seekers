@@ -54,19 +54,16 @@
 					deleteButton.src = "delete.png";
 					deleteButton.classList.add("deleteButton");
 					deleteButton.onclick = (function(image) { return function() {
-						res.json().then(data => {
-							locations = data;
-							fetch("https://us-east4-still-tensor-338300.cloudfunctions.net/deleteImage", {
-								method: "POST",
-								mode: 'cors',
-								cache: 'no-cache',
-								credentials: 'same-origin', 
-								body: JSON.stringify({imgURI: picture[i]})
-							}).then(res => { res.json().then(userData => { 
-								isAdmin = userData[0].isAdmin; 
-								generateGallery();
-							})})
-						});
+						fetch("https://us-east4-still-tensor-338300.cloudfunctions.net/deleteImage", {
+							method: "POST",
+							mode: 'cors',
+							cache: 'no-cache',
+							credentials: 'same-origin', 
+							body: JSON.stringify({imgURI: image})
+						}).then(res => { res.json().then(userData => { 
+							isAdmin = userData[0].isAdmin; 
+							generateGallery();
+						})});
 						getLocations();
 					}})(locations[i].image);
 					galleryImageDiv.appendChild(deleteButton);
@@ -113,7 +110,7 @@
 			var minutes = "0" + date.getMinutes();
 			var time = (hours % 12) + ':' + minutes.substr(-2) + (hours >= 12? " pm" : " am");
 			var animalString = (loc.hasBunny? "Bunny" : "") + (loc.hasBunny && loc.hasSquirrel? " and " : "") + (loc.hasSquirrel? "Squirrel" : "");
-						
+
 			const icons = {
 				bunny: { url: "bunny.png", scaledSize: new google.maps.Size(30, 30) },
 				squirrel: { url: "squirrel.png", scaledSize: new google.maps.Size(30, 30) },
