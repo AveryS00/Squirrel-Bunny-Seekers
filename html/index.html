@@ -16,16 +16,19 @@
             document.getElementById("submit_login").onclick = function () {
                 var uname = document.getElementById("uname").value;
                 var pwd = document.getElementById("pwd").value;
-                //make login request
-                if(true) { //login valid
-                    var date = new Date();
-                    date.setTime(date.getTime()+(24*60*60*1000));
-                    var expires = "expires="+date.toGMTString();
-                    document.cookie = "username= " + uname + "; " + expires + "; " + "path=/";
-                    window.location.href = "home.html";
-                } else {
-                    document.cookie = ""; //just in case they have one
-                    alert("The username or password is incorrect.");
+                if(!uname || !pwd) { alert("Username or password is invalid."); }
+                else {
+                    //make login request
+                    if(true) { //login valid
+                        var date = new Date();
+                        date.setTime(date.getTime()+(24*60*60*1000));
+                        var expires = "expires="+date.toGMTString();
+                        document.cookie = "username= " + uname + "; " + expires + "; " + "path=/";
+                        window.location.href = "home.html";
+                    } else {
+                        document.cookie = ""; //just in case they have one
+                        alert("The username or password is incorrect.");
+                    }
                 }
 			};
         }

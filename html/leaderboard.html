@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>WPI Squirrel and Bunny Spotter</title>
+        <title>Leaderboard</title>
 		<script type="text/javascript">		
 
 		function generateLeaderboard() {
@@ -33,9 +33,23 @@
 			document.getElementById("siteTitle").onclick = function () {
 				location.href = "home.html";
 			};
+			document.getElementById("logout").onclick = function () {
+                document.cookie = "";
+				location.href = "index.html";
+			};
+			document.getElementById("profile").onclick = function () {
+				location.href = "profile.html";
+			};
+		}
+
+		function checkLoggedIn() {
+			if(!document.cookie.split("=")[1]) {
+				location.href = "index.html";
+			}
 		}
 		
 		function load() {
+			checkLoggedIn();
 			setupNav();
 			generateLeaderboard();
 		}
@@ -52,7 +66,9 @@
 			<li><a href="home.html">Home</a></li>
 			<li><a class="active" href="leaderboard.html">Leaderboard</a></li>
 			<li><a href="gallery.html">Gallery</a></li>
-			</ul>
+            <li><a id="logout">Logout</a></li>
+		</ul>
+		<div id="profile"><image src="profile_image.png" width="30px"></image></div>
 		<div id="container">
 			<h1 style="font-size: 40px;">Leaderboard</h1>
 			<br>
