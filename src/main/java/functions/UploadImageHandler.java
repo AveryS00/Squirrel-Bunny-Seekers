@@ -10,7 +10,6 @@ import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -20,12 +19,9 @@ import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.UUID;
 
-import database.ImageDAO;
 import entity.SeekerImage;
 
-
 public class UploadImageHandler implements HttpFunction {
-    // TODO might want to move these to a "higher" place
     private static final String projectId = "still-tensor-338300";
     private static final String bucketName = "msu4xohkt-sjiuw-z4";
     private static final String storage_api_url = "https://storage.googleapis.com/";
@@ -42,16 +38,16 @@ public class UploadImageHandler implements HttpFunction {
         String url;
         String data;
         byte[] img_data;
-        boolean isBunny;
-        boolean isSquirrel;
+        int isBunny;
+        int isSquirrel;
         String contentType = request.getContentType().orElse("");
         // Can likely be taken to a higher level. IE, once initialized, can be used everywhere.
         storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
 
         // Cors
         response.appendHeader("Access-Control-Allow-Origin", "*");
+        response.appendHeader("Access-Control-Allow-Methods", "POST");
         if ("OPTIONS".equals(request.getMethod())) {
-            response.appendHeader("Access-Control-Allow-Methods", "GET");
             response.appendHeader("Access-Control-Allow-Headers", "Content-Type");
             response.appendHeader("Access-Control-Max-Age", "3600");
             response.setStatusCode(HttpURLConnection.HTTP_NO_CONTENT);
@@ -118,15 +114,21 @@ public class UploadImageHandler implements HttpFunction {
         isSquirrel = verifySquirrel(url);
         logger.info("Contains bunny? " + isBunny);
         logger.info("Contains squirrel? " + isSquirrel);
-
+    
         // Remove from bucket if not a bunny or squirrel
-        if (!isBunny && !isSquirrel) {
+        if (isBunny == 0 && isSquirrel == 0) {
             logger.error("No bunny or squirrel seen, deleting from bucket");
             deleteFromBucket(sImage);
         } else {
             logger.info("Adding to database");
-            // add to database
-            if (uploadToDatabase(sImage)) {
+            if (isBunny > 0) {
+                sImage.setHasBunny(true);
+            }
+            if (isSquirrel > 0) {
+                sImage.setHasSquirrel(true);
+            }
+
+            if (uploadToDatabase(sImage, isBunny + isSquirrel)) {
                 logger.info("Added to database");
             } else {
                 logger.error("Unable to add to database");
@@ -134,17 +136,17 @@ public class UploadImageHandler implements HttpFunction {
         }
     }
 
-    private boolean verifyBunny(String url) throws IOException, InterruptedException {
+    private int verifyBunny(String url) throws IOException, InterruptedException {
         return verifyAnimal(url, "bunnyIdentifier");
     }
 
-    private boolean verifySquirrel(String url) throws IOException, InterruptedException {
+    private int verifySquirrel(String url) throws IOException, InterruptedException {
         return verifyAnimal(url, "squirrelIdentifier");
     }
 
-    private boolean verifyAnimal(String url, String animalIdentifier) throws IOException, InterruptedException {
+    private int verifyAnimal(String url, String animalIdentifier) throws IOException, InterruptedException {
         logger.info("Trying to verify animal");
-        boolean isAnimal;
+        int isAnimal;
         String postBody = "{ \"imgURI\":\"" + url + "\" }";
         logger.info(postBody);
 
@@ -160,7 +162,7 @@ public class UploadImageHandler implements HttpFunction {
         var response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
 
         logger.info(response.body());
-        isAnimal = Boolean.parseBoolean(response.body());
+        isAnimal = Integer.parseInt(response.body());
 
         return isAnimal;
     }
@@ -223,17 +225,27 @@ public class UploadImageHandler implements HttpFunction {
      * @param seekerImage The image object
      * @return True if uploaded
      */
-    private boolean uploadToDatabase(SeekerImage seekerImage) {
-        ImageDAO dao;
-        try {
-            dao = new ImageDAO();
-        } catch (Exception e) {
-            logger.error("Unable to upload image to database");
-            logger.error(e.toString());
-            return false;
-        }
+    private boolean uploadToDatabase(SeekerImage seekerImage, int points) throws IOException, InterruptedException {
+        String postBody = "{\"image_data\": {\"creator\":\"" + seekerImage.getCreator() + "\", \"name\":\""
+        + seekerImage.getName() + "\",\"hash\": \""+ seekerImage.getHash() +"\",\"url\": \""
+                + seekerImage.getUrl() + "\",\"timestamp\":" + seekerImage.getTimestamp() + ",\"lat\": "
+                + seekerImage.getLat() +",\"lon\":" + seekerImage.getLon() + ",\"hasBunny\": "
+                + seekerImage.isHasBunny() + ",\"hasSquirrel\": "
+                + seekerImage.isHasSquirrel() + "},\"points\": " + points + "}";
 
-        return dao.addImage(seekerImage);
+        var request = java.net.http.HttpRequest.newBuilder()
+                .uri(URI.create("https://us-east4-still-tensor-338300.cloudfunctions.net/updateDatabase"))
+                .header("Content-Type", "application/json")
+                .POST(java.net.http.HttpRequest.BodyPublishers.ofString(postBody))
+                .build();
+        logger.info(request.toString());
+
+        var client = HttpClient.newHttpClient();
+
+        var response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+
+        logger.info(response.body());
+        return Boolean.parseBoolean(response.body());
     }
 
 

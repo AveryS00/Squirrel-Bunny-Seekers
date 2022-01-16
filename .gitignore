@@ -3,6 +3,6 @@ target
 src.zip
 node_modules
 javasource.zip
-package.json
+NodeFunction/packages/packageUpdateDatabase.json
 package-lock.json
 lib
