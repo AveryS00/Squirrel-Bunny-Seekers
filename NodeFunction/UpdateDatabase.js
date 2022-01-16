@@ -16,16 +16,25 @@ const pool = mysql.createPool({
 exports.updateDatabase = (req, res) => {
     const image_data = req.body.image_data;
     const points = req.body.points;
+    console.log('Image data');
+    console.log(image_data);
+    console.log('Points');
+    console.log(points);
 
     uploadToDatabase(image_data, (err) => {
         if (err) {
-            res.status(500).send(err);
+            console.log('Error with first database attempt');
+            console.log(err);
+            res.status(500).send(false);
         } else {
             updateUserPoints(points, image_data['email'], (err) => {
                 if (err) {
-                    res.status(500).send(err);
+                    console.log('Error with second database attempt');
+                    console.log(err);
+                    res.status(500).send(false);
                 } else {
-                    res.status(200).send('Uploaded to database');
+                    console.log('Success');
+                    res.status(200).send(true);
                 }
             });
         }
@@ -34,20 +43,23 @@ exports.updateDatabase = (req, res) => {
 
 function uploadToDatabase(image_data, callback) {
     console.log('Querying image database')
-    pool.query('SELECT * FROM user WHERE hash = "' + image_data['hash'] + '"', (error, data) => {
+    pool.query('SELECT * FROM image WHERE hash = "' + image_data['hash'] + '"', (error, data) => {
+        console.log('First query complete');
         if (!error && data && data.length === 0) {
             pool.query("INSERT INTO image (email, name, hash, url, timestamp, lat, lon, hasBunny, hasSquirrel) " +
-                "VALUES ('" + image_data['email'] + "', '" + image_data['new_name'] + "', '" + image_data['hash'] +
+                "VALUES ('" + image_data['email'] + "', '" + image_data['name'] + "', '" + image_data['hash'] +
                 "', '" + image_data['url'] + "', " + image_data['timestamp'] +
                 ", " + image_data['lat'] + ", " + image_data['lon'] + ", " + image_data['hasBunny'] +
                 ", " + image_data['hasSquirrel'] + ")",
 
                 (error, data) => {
+                    console.log('second query complete');
                     if (error) {
                         console.log(`failed to put image information into database: ${error}`);
                         callback(error);
                     } else {
-                        console.log(`Image in database: ${data}`);
+                        console.log('Image in database');
+                        console.log(data);
                         callback();
                     }
                 });
@@ -58,14 +70,16 @@ function uploadToDatabase(image_data, callback) {
     });
 }
 
-function updateUserPoints(points, email) {
-    pool.query(`UPDATE user SET points = points + ${points} WHERE email = ${email}`,
+function updateUserPoints(points, email, callback) {
+    pool.query(`UPDATE user SET points = points + ${points} WHERE email = '${email}'`,
 
         (error, data) => {
             if (error) {
                 console.log(`Error encountered updating user points: ${error}`);
+                callback(err);
             } else {
                 console.log(`Updated user points: ${data}`);
+                callback();
             }
         });
 }

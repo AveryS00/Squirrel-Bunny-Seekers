@@ -17,6 +17,8 @@ import java.net.http.HttpClient;
 import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import entity.SeekerImage;
@@ -131,6 +133,7 @@ public class UploadImageHandler implements HttpFunction {
             if (uploadToDatabase(sImage, isBunny + isSquirrel)) {
                 logger.info("Added to database");
             } else {
+                response.setStatusCode(HttpURLConnection.HTTP_INTERNAL_ERROR);
                 logger.error("Unable to add to database");
             }
         }
@@ -174,6 +177,7 @@ public class UploadImageHandler implements HttpFunction {
      * @return The url where the data is stored or null if unable
      */
     private String uploadToBucket(SeekerImage seekerImage, byte[] data) {
+        Blob blob;
         logger.info("Changing name of image");
         // Create a uuid
         String uuid = UUID.randomUUID().toString();
@@ -188,13 +192,17 @@ public class UploadImageHandler implements HttpFunction {
         BlobId blobId = BlobId.of(bucketName, seekerImage.getName());
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
         try {
-            storage.create(blobInfo, data);
+            blob = storage.create(blobInfo, data);
         } catch (StorageException se) {
             logger.error("Exception adding to bucket");
             logger.error(se.getMessage());
             se.printStackTrace();
             return null;
         }
+        Map<String, String> newMetadata = new HashMap<>();
+        newMetadata.put("Content-Type", "image/" + extension.substring(1));
+        blob.toBuilder().setMetadata(newMetadata).build().update();
+
 
         logger.info("successfully added to bucket");
         return storage_api_url + bucketName + "/" + seekerImage.getName();
@@ -226,12 +234,13 @@ public class UploadImageHandler implements HttpFunction {
      * @return True if uploaded
      */
     private boolean uploadToDatabase(SeekerImage seekerImage, int points) throws IOException, InterruptedException {
-        String postBody = "{\"image_data\": {\"creator\":\"" + seekerImage.getCreator() + "\", \"name\":\""
+        String postBody = "{\"image_data\": {\"email\":\"" + seekerImage.getCreator() + "\", \"name\":\""
         + seekerImage.getName() + "\",\"hash\": \""+ seekerImage.getHash() +"\",\"url\": \""
                 + seekerImage.getUrl() + "\",\"timestamp\":" + seekerImage.getTimestamp() + ",\"lat\": "
                 + seekerImage.getLat() +",\"lon\":" + seekerImage.getLon() + ",\"hasBunny\": "
                 + seekerImage.isHasBunny() + ",\"hasSquirrel\": "
                 + seekerImage.isHasSquirrel() + "},\"points\": " + points + "}";
+        logger.info(postBody);
 
         var request = java.net.http.HttpRequest.newBuilder()
                 .uri(URI.create("https://us-east4-still-tensor-338300.cloudfunctions.net/updateDatabase"))
