@@ -7,6 +7,22 @@
         <script src="https://maps.googleapis.com/maps/api/js?v=3.11&sensor=false&key=AIzaSyDlWdrHUa89OCxOGi-RpfKjTpvA7eeAaAY" type="text/javascript"></script>
 		<script src="./js/bundle.js"></script>
 		<script type="text/javascript">
+		var locations = [];
+		function getLocations() {
+			fetch("https://us-east4-still-tensor-338300.cloudfunctions.net/viewImages", {
+				method: "POST",
+				mode: 'cors',
+				cache: 'no-cache',
+				credentials: 'same-origin', 
+				body: "{}"
+			}).then(res => {
+				res.json().then(data => {
+					locations = data;
+					plotAnimals();
+				});
+			});
+		}
+
 		function setupImageUpload() {
 			const chooseFile = document.getElementById("choose-file");
 
@@ -63,18 +79,14 @@
 
 			var map = new google.maps.Map(document.getElementById('mapCanvas'), options);
 
-			var locations = [{latitude:42.274988888888885, longitude:-71.80835555555555, bunny: true, squirrel: false, user: "Margaret", datetime: 1642219340, image: "bunny1.jpg"},
-					{latitude:42.27195505350241, longitude:-71.80839022451308, bunny: false, squirrel: true, user: "Avery", datetime: 1641892835, image: "bunny2.jpg"},
-					{latitude:42.276337181680475, longitude:-71.81259592818087, bunny: true, squirrel: true, user: "Char", datetime: 1608919235, image: "bunny3.jpg"}];
-
 			for (var i = 0; i < locations.length; i++) {
 				var loc = JSON.parse(JSON.stringify(locations[i]));
-				var date = new Date(loc.datetime * 1000);
+				var date = new Date(loc.timestamp * 1000);
 				var dateString =  (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
 				var hours = date.getHours();
 				var minutes = "0" + date.getMinutes();
 				var time = (hours % 12) + ':' + minutes.substr(-2) + (hours >= 12? " pm" : " am");
-				var animalString = (loc.bunny? "Bunny" : "") + (loc.bunny && loc.squirrel? " and " : "") + (loc.squirrel? "Squirrel" : "");
+				var animalString = (loc.hasBunny? "Bunny" : "") + (loc.hasBunny && loc.hasSquirrel? " and " : "") + (loc.hasSquirrel? "Squirrel" : "");
 				
 				const icons = {
 					bunny: { url: "bunny.png", scaledSize: new google.maps.Size(30, 30) },
@@ -83,19 +95,29 @@
 				  };
 			
 				var marker = new google.maps.Marker({
-					position: new google.maps.LatLng(loc.latitude, loc.longitude),
+					position: new google.maps.LatLng(loc.lat, loc.lon),
 					map: map,
 					title: animalString + " (" + dateString + ")",
-					icon: icons[loc.bunny? (loc.squirrel? "squnny" : "bunny") : "squirrel"]
+					icon: icons[loc.hasBunny? (loc.hasSquirrel? "squnny" : "bunny") : "squirrel"]
 				});
 
 				(function(marker, loc, animalString, time, dateString) {
 					google.maps.event.addListener(marker, 'click', function() {
-						infowindow = new google.maps.InfoWindow({
-							content: "<div style='text-align: center'> <div>" + loc.user + " spotted a " + animalString.toLowerCase() + " at " + time + " on " + dateString + "</div><br>"
-								+ "<image width=150spx src='" + loc.image + "' /></div>"
+						fetch("https://us-east4-still-tensor-338300.cloudfunctions.net/getUser", {
+							method: "POST",
+							mode: 'cors',
+							cache: 'no-cache',
+							credentials: 'same-origin', 
+							body: JSON.stringify({uname: loc.email})
+						}).then(res => {
+							res.json().then(userData => {
+								infowindow = new google.maps.InfoWindow({
+									content: "<div style='text-align: center'> <div>" + userData[0].uname + " spotted a " + animalString.toLowerCase() + " at " + time + " on " + dateString + "</div><br>"
+										+ "<image width=150spx src='" + loc.url + "' /></div>"
+								});
+								infowindow.open(map, marker);
+							})
 						});
-						infowindow.open(map, marker);
 					});
 				})(marker, loc, animalString, time, dateString);
 			}
@@ -124,10 +146,10 @@
 		}
 		
 		function load() {
-			checkLoggedIn();
+			// checkLoggedIn();
+			getLocations();
 			setupNav();
 			setupImageUpload();
-			plotAnimals();
 		}
         </script>
 		<link rel="preconnect" href="https://fonts.googleapis.com">
