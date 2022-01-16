@@ -23,11 +23,19 @@
 				  var data = dataToParse.parse();
 				  console.log(data);
 				  var pictureTimestamp = data.tags.CreateDate + 18000;
+				  if(!pictureTimestamp) { 
+					  alert("This image doesn't have readable timestamp data."); 
+					  return;
+				  }
 				  var age = ((new Date().getTime()) / 1000) - pictureTimestamp;
 				  console.log("Image was taken at Unix timestamp " + pictureTimestamp + ", " + (age / 60) + " minutes ago");
 				  console.log(age > 604800? "Image is older than one week" : "Image is less than a week old");
 				  //lat/long 42.274404378511406, -71.80813596125853
 				  console.log((Math.pow(42.274404378511406 - data.tags.GPSLatitude,2)/Math.pow(0.01449275362,2)) + (Math.pow(-71.80813596125853 - data.tags.GPSLongitude,2)/Math.pow(0.01831501831,2)) <= 1);
+				  if(!data.tags.GPSLatitude || !data.tags.GPSLongitude) { 
+					  alert("This image doesn't have readable location data."); 
+					  return;
+				  }
 				});    
 			  }
 			}
