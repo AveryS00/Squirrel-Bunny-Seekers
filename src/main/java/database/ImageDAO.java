@@ -2,6 +2,9 @@ package database;
 
 import com.zaxxer.hikari.HikariDataSource;
 import entity.SeekerImage;
+import functions.UploadImageHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,6 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ImageDAO {
+    private static final Logger logger = LoggerFactory.getLogger(UploadImageHandler.class);
     static HikariDataSource connectionPool;
     PreparedStatement stmt;
     ResultSet set;
@@ -114,7 +118,9 @@ public class ImageDAO {
      * @return True if added, false otherwise
      */
     public boolean addImage(SeekerImage seekerImage) {
+        logger.info("Geeting connection");
         try (Connection conn = connectionPool.getConnection()) {
+            logger.info("Connection made");
             if (isInDatabase(seekerImage)) {
                 return false;
             }
@@ -133,6 +139,7 @@ public class ImageDAO {
             stmt.executeUpdate();
             return true;
         } catch (SQLException e) {
+
             e.printStackTrace();
             return false;
         } finally {

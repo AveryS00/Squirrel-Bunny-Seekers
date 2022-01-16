@@ -1,0 +1,8 @@
+{
+  "name": "upload-image",
+  "version": "0.0.1",
+  "dependencies": {
+    "@google-cloud/storage": "^5.17.0",
+    "mysql": "^2.18.1"
+  }
+}
