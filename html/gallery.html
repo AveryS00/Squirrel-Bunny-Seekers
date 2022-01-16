@@ -15,18 +15,28 @@
 			var container = document.getElementById("gallery_container");
 			var modalImage = document.getElementById("modalImage");
 			for(var i=0; i<pictures.length; i++) {
+				var galleryImageDiv = document.createElement("div");
+				galleryImageDiv.style.position = "relative";
 				var galleryImage = document.createElement("img");
 				galleryImage.classList.add("gallery");
 				galleryImage.src = pictures[i].image;
-				for(var j=0; j<5; j++) {
-					galleryImage.onclick = (function(i, image) { return function() {
-						modal.style.display = "block";
-						plotAnimal(i);
-						modalImage.src = image;
-						document.getElementById('mapCanvas').style.height = modalImage.getBoundingClientRect().height + "px";
-					}})(i, pictures[i].image);
-					container.appendChild(galleryImage);
+				var deleteButton = document.createElement("img");
+				deleteButton.src = "delete.png";
+				deleteButton.classList.add("deleteButton");
+				deleteButton.onclick = function() {
+					// delete this image
 				}
+				galleryImage.onclick = (function(i, image) { return function() {
+					modal.style.display = "block";
+					plotAnimal(i);
+					modalImage.src = image;
+					document.getElementById('mapCanvas').style.height = modalImage.getBoundingClientRect().height + "px";
+				}})(i, pictures[i].image);
+				if(true) {//user is admin
+					galleryImageDiv.appendChild(deleteButton);
+				}
+				galleryImageDiv.appendChild(galleryImage);
+				container.appendChild(galleryImageDiv);
 			}
 		}
 
@@ -75,7 +85,7 @@
 				bunny: { url: "bunny.png", scaledSize: new google.maps.Size(30, 30) },
 				squirrel: { url: "squirrel.png", scaledSize: new google.maps.Size(30, 30) },
 				squnny: { url: "squnny.png", scaledSize: new google.maps.Size(33, 33) },
-				};
+			};
 		
 			var marker = new google.maps.Marker({
 				position: new google.maps.LatLng(loc.latitude, loc.longitude),
@@ -108,7 +118,7 @@
 		}
 		
 		function load() {
-			checkLoggedIn();
+			// checkLoggedIn();
 			setupNav();
 			setupImagePopup();
 			generateGallery();

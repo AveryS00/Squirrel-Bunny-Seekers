@@ -235,6 +235,14 @@ li a:hover:not(.active) {
     cursor: pointer;
 }
 
+.deleteButton {
+    position: absolute;
+    width: 30px;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
 @media only screen and (max-width: 700px) {
     #button_text {
         width: 90%;
