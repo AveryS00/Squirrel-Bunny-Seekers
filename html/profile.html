@@ -90,16 +90,34 @@
 			})(loc, animalString, time, dateString);
         }
 
+        function loadUser() {
+            document.getElementById("title").innerText = "Hello " + document.cookie.split("=")[1] + "!";
+            //get actual score and rank
+            document.getElementById("user_desc").innerText = "Your score is 20 and you're Rank 3 on the photography leaderboard. Here are your pictures so far!";
+        }
+
 		function setupNav() {
 			document.getElementById("siteTitle").onclick = function () {
 				location.href = "home.html";
 			};
+            document.getElementById("logout").onclick = function () {
+                document.cookie = "";
+				location.href = "index.html";
+			};
+			document.getElementById("profile").onclick = function () {
+				location.href = "profile.html";
+			};
+		}
+
+        function checkLoggedIn() {
+			if(!document.cookie.split("=")[1]) {
+				location.href = "index.html";
+			}
 		}
 		
 		function load() {
-            document.getElementById("title").innerText = "Hello " + document.cookie.split("=")[1] + "!";
-            //get actual score and rank
-            document.getElementById("user_desc").innerText = "Your score is 20 and you're Rank 3 on the photography leaderboard. Here are your pictures so far!";
+            checkLoggedIn();
+            loadUser();
 			setupNav();
 			setupImagePopup();
 			generateGallery();
@@ -117,6 +135,7 @@
 			<li><a href="home.html">Home</a></li>
 			<li><a href="leaderboard.html">Leaderboard</a></li>
 			<li><a href="gallery.html">Gallery</a></li>
+            <li><a id="logout">Logout</a></li>
 		</ul>
 		<div id="profile"><image src="profile_image.png" width="30px"></image></div>
 		<div id="container">
