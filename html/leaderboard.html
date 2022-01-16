@@ -7,26 +7,33 @@
 		<script type="text/javascript">		
 
 		function generateLeaderboard() {
-			var users = [{user: "Avery", squirrels: 0, bunnies: 30, score: 20},
-			{user: "Margaret", squirrels: 10, bunnies: 5, score: 30},
-			{user: "Char", squirrels: 20, bunnies: 8, score: 5}];
-			var table = document.getElementById("leaderboard_body");
-			users = users.sort((a, b) => b.score - a.score);
+			fetch("https://us-east4-still-tensor-338300.cloudfunctions.net/getAllUsers", {
+				method: "POST",
+				mode: 'cors',
+				cache: 'no-cache',
+				credentials: 'same-origin', 
+				body: "{}"
+			}).then(res => {
+				res.json().then(data => {
+					var table = document.getElementById("leaderboard_body");
+					data = data.sort((a, b) => b.points - a.points);
 
-			for(var i=0; i<users.length; i++) {
-				var row = table.insertRow();
-				var cell1 = row.insertCell(0);
-				var cell2 = row.insertCell(1);
-				var cell3 = row.insertCell(2);
-				var cell4 = row.insertCell(3);
-				var cell5 = row.insertCell(4);
+					for(var i=0; i<data.length; i++) {
+						var row = table.insertRow();
+						var cell1 = row.insertCell(0);
+						var cell2 = row.insertCell(1);
+						var cell3 = row.insertCell(2);
+						// var cell4 = row.insertCell(3);
+						// var cell5 = row.insertCell(4);
 
-				cell1.innerHTML = i+1;
-				cell2.innerHTML = users[i].user;
-				cell3.innerHTML = users[i].score;
-				cell4.innerHTML = users[i].squirrels;
-				cell5.innerHTML = users[i].bunnies;
-			}
+						cell1.innerHTML = i+1;
+						cell2.innerHTML = data[i].uname;
+						cell3.innerHTML = data[i].points;
+						// cell4.innerHTML = users[i].squirrels;
+						// cell5.innerHTML = users[i].bunnies;
+					}
+				})
+			});
 		}
 
 		function setupNav() {
@@ -81,8 +88,8 @@
 						<th>Rank</th>
 						<th>Photographer</th>
 						<th>Score</th>
-						<th>Squirrels</th>
-						<th>Bunnies</th>
+						<!-- <th>Squirrels</th>
+						<th>Bunnies</th> -->
 					</tr>
 				</thead>
 				<tbody id="leaderboard_body"></tbody>

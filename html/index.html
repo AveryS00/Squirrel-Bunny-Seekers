@@ -61,18 +61,23 @@
                 else {
                     fetch("https://us-east4-still-tensor-338300.cloudfunctions.net/createAccount", {
                         method: "POST",
-                        mode:'no-cors',
-                        headers: {'Content-Type': 'application/json'}, 
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        credentials: 'same-origin', 
                         body: JSON.stringify({email: email, uname: uname, password: pwd1})
                     }).then(res => {
-                        console.log(res);
+                        res.json().then(data => {
+                            if(data.message == "done") {
+                                var date = new Date();
+                                date.setTime(date.getTime()+(24*60*60*1000));
+                                var expires = "expires="+date.toGMTString();
+                                document.cookie = "username= " + uname + "; " + expires + "; " + "path=/";
+                                window.location.href = "home.html";
+                            } else {
+                                alert("The account could not be created.");
+                            }
+                        })
                     });
-                    // // make account then redirect
-                    // var date = new Date();
-                    // date.setTime(date.getTime()+(24*60*60*1000));
-                    // var expires = "expires="+date.toGMTString();
-                    // document.cookie = "username= " + uname + "; " + expires + "; " + "path=/";
-                    // window.location.href = "home.html";
                 }
 			};
         }
